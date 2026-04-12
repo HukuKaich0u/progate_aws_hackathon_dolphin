@@ -4,6 +4,7 @@
 
 This repository uses `prek` to manage shared Git hooks.
 The shared configuration lives in `prek.toml`.
+TOML formatting policy will live in `tombi.toml`.
 
 1. Install `prek` in your local environment.
 2. Run `make setup` after cloning this repository.
