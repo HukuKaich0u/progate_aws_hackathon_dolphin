@@ -1,1 +1,16 @@
-# Root tombi configuration for this repository.
+toml-version = "v1.0.0"
+
+[files]
+include = ["**/*.toml"]
+
+[format.rules]
+indent-style = "space"
+indent-width = 2
+line-ending = "lf"
+line-width = 80
+string-quote-style = "double"
+
+[lint.rules]
+dotted-keys-out-of-order = "warn"
+key-empty = "warn"
+tables-out-of-order = "warn"
