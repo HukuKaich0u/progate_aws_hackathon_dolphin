@@ -1,3 +1,5 @@
+#:schema https://www.schemastore.org/prek.json
+
 [[repos]]
 repo = "builtin"
 hooks = [
@@ -6,4 +8,11 @@ hooks = [
   { id = "check-yaml" },
   { id = "check-toml" },
   { id = "check-json" },
+]
+
+[[repos]]
+repo = "local"
+hooks = [
+  { id = "tombi-format", name = "tombi format", entry = "tombi format --check --offline", language = "system", files = "\\.toml$" },
+  { id = "tombi-lint", name = "tombi lint", entry = "tombi lint --offline --error-on-warnings", language = "system", files = "\\.toml$" },
 ]
