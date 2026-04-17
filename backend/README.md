@@ -61,6 +61,18 @@ live 疎通時は `dummy-token` ではなく、Cognito で発行した実 token 
 - テスト: `cargo test --manifest-path backend/Cargo.toml`
 - 型チェック: `cargo check --manifest-path backend/Cargo.toml`
 
+## Live smoke
+
+AWS 返却後の最小疎通確認は `jq` が入っていれば次で流せます。
+
+```bash
+BACKEND_URL=http://localhost:3000 \
+TOKEN='<cognito-token>' \
+backend/scripts/live_smoke.sh
+```
+
+この script は `create room -> get room -> join room -> leave room` を順に叩きます。
+
 ## Layout
 
 - `src/app`: 起動、router、state
