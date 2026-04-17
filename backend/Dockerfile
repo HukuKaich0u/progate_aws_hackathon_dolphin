@@ -3,6 +3,7 @@ FROM rust:1.87-bookworm AS builder
 WORKDIR /app/backend
 
 COPY backend/Cargo.toml ./Cargo.toml
+COPY backend/Cargo.lock ./Cargo.lock
 COPY backend/src ./src
 COPY backend/migrations ./migrations
 

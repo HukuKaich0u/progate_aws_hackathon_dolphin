@@ -8,6 +8,10 @@ services:
       APP_PORT: ${APP_PORT:-3000}
       RUST_LOG: ${RUST_LOG:-info,backend=debug}
       DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/app}
+      AWS_REGION: ${AWS_REGION:-ap-northeast-1}
+      CHIME_MEDIA_REGION: ${CHIME_MEDIA_REGION:-ap-northeast-1}
+      COGNITO_USER_POOL_ID: ${COGNITO_USER_POOL_ID:-ap-northeast-1_example}
+      COGNITO_CLIENT_ID: ${COGNITO_CLIENT_ID:-exampleclientid}
     ports:
       - "3000:3000"
     depends_on:
