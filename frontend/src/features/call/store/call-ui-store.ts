@@ -13,17 +13,22 @@ export type ConnectionPhase =
 
 type CallUiState = {
   connectionPhase: ConnectionPhase
+  isDeviceSettingsOpen: boolean
   isCameraEnabled: boolean
   isMicEnabled: boolean
   isScreenSharing: boolean
   participantPage: number
   pinnedParticipantId: string | null
+  setDeviceSettingsOpen: (isOpen: boolean) => void
   selectedAudioInputId: string | null
   selectedAudioOutputId: string | null
   selectedVideoInputId: string | null
   setConnectionPhase: (phase: ConnectionPhase) => void
   setParticipantPage: (page: number) => void
   setPinnedParticipantId: (participantId: string | null) => void
+  setSelectedAudioInputId: (deviceId: string | null) => void
+  setSelectedAudioOutputId: (deviceId: string | null) => void
+  setSelectedVideoInputId: (deviceId: string | null) => void
   toggleCamera: () => void
   toggleMic: () => void
   toggleScreenShare: () => void
@@ -31,11 +36,15 @@ type CallUiState = {
 
 export const useCallUiStore = create<CallUiState>(() => ({
   connectionPhase: 'idle',
+  isDeviceSettingsOpen: false,
   isCameraEnabled: true,
   isMicEnabled: true,
   isScreenSharing: false,
   participantPage: 0,
   pinnedParticipantId: null,
+  setDeviceSettingsOpen: (isDeviceSettingsOpen) => {
+    useCallUiStore.setState({ isDeviceSettingsOpen })
+  },
   selectedAudioInputId: null,
   selectedAudioOutputId: null,
   selectedVideoInputId: null,
@@ -47,6 +56,15 @@ export const useCallUiStore = create<CallUiState>(() => ({
   },
   setPinnedParticipantId: (pinnedParticipantId) => {
     useCallUiStore.setState({ pinnedParticipantId })
+  },
+  setSelectedAudioInputId: (selectedAudioInputId) => {
+    useCallUiStore.setState({ selectedAudioInputId })
+  },
+  setSelectedAudioOutputId: (selectedAudioOutputId) => {
+    useCallUiStore.setState({ selectedAudioOutputId })
+  },
+  setSelectedVideoInputId: (selectedVideoInputId) => {
+    useCallUiStore.setState({ selectedVideoInputId })
   },
   toggleCamera: () => {
     useCallUiStore.setState((state) => ({ isCameraEnabled: !state.isCameraEnabled }))
