@@ -24,7 +24,11 @@ mod tests {
     use tower::util::ServiceExt;
 
     use super::create_router;
-    use crate::{app::state::AppState, config::AppConfig};
+    use crate::{
+        app::state::AppState,
+        config::AppConfig,
+        infra::{auth::default_token_verifier, chime::default_meeting_provider},
+    };
 
     #[tokio::test]
     async fn router_sets_x_request_id_header() {
@@ -57,6 +61,11 @@ mod tests {
             .connect_lazy(&config.database_url)
             .expect("pool config should be valid");
 
-        AppState { config, db_pool }
+        AppState {
+            config,
+            db_pool,
+            token_verifier: default_token_verifier(),
+            meeting_provider: default_meeting_provider(),
+        }
     }
 }

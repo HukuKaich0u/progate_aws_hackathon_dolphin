@@ -1,7 +1,7 @@
 use backend::{
     app::{router::create_router, state::AppState},
     config::AppConfig,
-    infra::db::create_pool,
+    infra::{auth::default_token_verifier, chime::default_meeting_provider, db::create_pool},
 };
 use tokio::net::TcpListener;
 use tracing::info;
@@ -14,7 +14,12 @@ async fn main() -> Result<(), backend::error::AppError> {
     let config = AppConfig::from_env()?;
     let socket_addr = config.socket_addr()?;
     let db_pool = create_pool(&config.database_url).await?;
-    let state = AppState { config, db_pool };
+    let state = AppState {
+        config,
+        db_pool,
+        token_verifier: default_token_verifier(),
+        meeting_provider: default_meeting_provider(),
+    };
     let app = create_router(state.clone());
     let listener = TcpListener::bind(socket_addr)
         .await
