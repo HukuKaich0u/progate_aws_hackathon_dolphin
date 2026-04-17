@@ -66,12 +66,21 @@ live 疎通時は `dummy-token` ではなく、Cognito で発行した実 token 
 AWS 返却後の最小疎通確認は `jq` が入っていれば次で流せます。
 
 ```bash
-BACKEND_URL=http://localhost:3000 \
-TOKEN='<cognito-token>' \
+cp backend/scripts/live_smoke.env.example backend/scripts/live_smoke.env
+```
+
+`backend/scripts/live_smoke.env` に `TOKEN` を入れたら、次で叩けます。
+
+```bash
+set -a
+source backend/scripts/live_smoke.env
+set +a
 backend/scripts/live_smoke.sh
 ```
 
-この script は `create room -> get room -> join room -> leave room` を順に叩きます。
+この script は `health -> create room -> get room -> join room -> leave room -> get room after leave` を順に叩きます。
+
+`docker compose up --build` でローカル backend を起動する場合も、live smoke に必要な `AWS_REGION`, `CHIME_MEDIA_REGION`, `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID` は `compose.yaml` から渡るようにしてあります。
 
 ## Layout
 

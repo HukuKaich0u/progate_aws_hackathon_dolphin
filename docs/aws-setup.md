@@ -180,6 +180,8 @@ COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ## API 動作確認例
 
+backend 側には live smoke 用に [backend/scripts/live_smoke.sh](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/backend/scripts/live_smoke.sh) と [backend/scripts/live_smoke.env.example](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/backend/scripts/live_smoke.env.example) を置いてあります。`TOKEN` と `BACKEND_URL` を入れれば一連の確認をまとめて実行できます。
+
 ### room 作成
 
 ```bash

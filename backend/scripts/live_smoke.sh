@@ -19,7 +19,11 @@ ROOM_NAME="${ROOM_NAME:-General}"
 
 auth_header="Authorization: Bearer ${TOKEN}"
 
-echo "[1/4] create room"
+echo "[0/5] health"
+curl --silent --show-error --fail \
+  "${BACKEND_URL}/health" | jq .
+
+echo "[1/5] create room"
 create_response="$(
   curl --silent --show-error --fail \
     -X POST "${BACKEND_URL}/v1/rooms" \
@@ -30,12 +34,12 @@ create_response="$(
 echo "${create_response}" | jq .
 room_id="$(echo "${create_response}" | jq -r '.room_id')"
 
-echo "[2/4] get room"
+echo "[2/5] get room"
 curl --silent --show-error --fail \
   "${BACKEND_URL}/v1/rooms/${room_id}" \
   -H "${auth_header}" | jq .
 
-echo "[3/4] join room"
+echo "[3/5] join room"
 join_response="$(
   curl --silent --show-error --fail \
     -X POST "${BACKEND_URL}/v1/rooms/${room_id}/join" \
@@ -43,9 +47,14 @@ join_response="$(
 )"
 echo "${join_response}" | jq .
 
-echo "[4/4] leave room"
+echo "[4/5] leave room"
 curl --silent --show-error --fail \
   -X POST "${BACKEND_URL}/v1/rooms/${room_id}/leave" \
   -H "${auth_header}" \
   -o /dev/null
 echo "leave ok"
+
+echo "[5/5] get room after leave"
+curl --silent --show-error --fail \
+  "${BACKEND_URL}/v1/rooms/${room_id}" \
+  -H "${auth_header}" | jq .
