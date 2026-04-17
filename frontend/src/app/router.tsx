@@ -1,4 +1,6 @@
 import { createRoute, createRouter, createRootRoute } from '@tanstack/react-router'
+import { requireAuth } from '../features/auth/require-auth'
+import { RoomRouteComponent } from '../routes/rooms/$roomId'
 import { AuthCallbackRouteComponent } from '../routes/auth/callback'
 import { LoginRouteComponent } from '../routes/login'
 import { RootLayout } from '../routes/__root'
@@ -25,7 +27,20 @@ const authCallbackRoute = createRoute({
   component: AuthCallbackRouteComponent,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, authCallbackRoute])
+const roomRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/rooms/$roomId',
+  beforeLoad: ({ location }) => requireAuth(location.pathname + location.search + location.hash),
+  component: RoomRoutePage,
+})
+
+function RoomRoutePage() {
+  const { roomId } = roomRoute.useParams()
+
+  return <RoomRouteComponent roomId={roomId} />
+}
+
+const routeTree = rootRoute.addChildren([indexRoute, loginRoute, authCallbackRoute, roomRoute])
 
 export const appRouter = createRouter({
   routeTree,
