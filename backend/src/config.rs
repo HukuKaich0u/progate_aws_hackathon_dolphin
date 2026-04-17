@@ -48,6 +48,17 @@ impl AppConfig {
                 source,
             })
     }
+
+    pub fn cognito_issuer(&self) -> String {
+        format!(
+            "https://cognito-idp.{}.amazonaws.com/{}",
+            self.aws_region, self.cognito_user_pool_id
+        )
+    }
+
+    pub fn cognito_jwks_url(&self) -> String {
+        format!("{}/.well-known/jwks.json", self.cognito_issuer())
+    }
 }
 
 fn required_var(key: &'static str) -> Result<String, AppError> {
@@ -105,6 +116,28 @@ mod tests {
                 assert!(debug_output.contains("ap-northeast-1_pool"));
                 assert!(debug_output.contains("client-id"));
             },
+        );
+    }
+
+    #[test]
+    fn cognito_endpoints_are_derived_from_region_and_pool_id() {
+        let config = AppConfig {
+            host: "0.0.0.0".to_owned(),
+            port: 3000,
+            database_url: "postgres://postgres:postgres@localhost:5432/app".to_owned(),
+            aws_region: "ap-northeast-1".to_owned(),
+            chime_media_region: "ap-northeast-1".to_owned(),
+            cognito_user_pool_id: "ap-northeast-1_example".to_owned(),
+            cognito_client_id: "client-id".to_owned(),
+        };
+
+        assert_eq!(
+            config.cognito_issuer(),
+            "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_example"
+        );
+        assert_eq!(
+            config.cognito_jwks_url(),
+            "https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_example/.well-known/jwks.json"
         );
     }
 }

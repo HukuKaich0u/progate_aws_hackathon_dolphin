@@ -5,8 +5,15 @@ edition = "2024"
 
 [dependencies]
 async-trait = "0.1.89"
+aws-config = { version = "1", features = ["behavior-version-latest"] }
+aws-sdk-chimesdkmeetings = "1"
 axum = "0.8"
 dotenvy = "0.15.7"
+jsonwebtoken = "10.1.0"
+reqwest = { version = "0.12", default-features = false, features = [
+  "json",
+  "rustls-tls"
+] }
 serde = { version = "1", features = ["derive"] }
 sqlx = { version = "0.8", features = [
   "macros",

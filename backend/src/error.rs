@@ -30,6 +30,8 @@ pub enum AppError {
     NotFound,
     #[error("database error: {0}")]
     Database(#[from] sqlx::Error),
+    #[error("dependency error: {0}")]
+    Dependency(String),
     #[error("aws sdk error: {0}")]
     AwsSdk(String),
     #[error("server io error: {0}")]
@@ -51,6 +53,7 @@ impl IntoResponse for AppError {
             | Self::InvalidConfig { .. }
             | Self::InvalidSocketAddress { .. }
             | Self::Database(_)
+            | Self::Dependency(_)
             | Self::AwsSdk(_)
             | Self::ServerIo(_) => (StatusCode::INTERNAL_SERVER_ERROR, "internal_server_error"),
         };
