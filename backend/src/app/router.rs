@@ -6,6 +6,7 @@ use axum::{
 use crate::{
     app::{request_id::apply_request_id, state::AppState},
     features::{
+        auth::handler::get_current_user_handler,
         health::handler::{db_health_handler, health_handler},
         rooms::handler::{
             create_room_handler, get_room_handler, join_room_handler, leave_room_handler,
@@ -18,6 +19,7 @@ pub fn create_router(state: AppState) -> Router {
         Router::new()
             .route("/health", get(health_handler))
             .route("/health/db", get(db_health_handler))
+            .route("/v1/auth/me", get(get_current_user_handler))
             .route("/v1/rooms", post(create_room_handler))
             .route("/v1/rooms/{room_id}", get(get_room_handler))
             .route("/v1/rooms/{room_id}/join", post(join_room_handler))

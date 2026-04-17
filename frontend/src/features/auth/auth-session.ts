@@ -31,12 +31,27 @@ function readStoredSession() {
   }
 }
 
+export function isSessionExpired(authSession: AuthSession, now = Date.now()) {
+  return authSession.expiresAt <= now
+}
+
 export function getAuthSession() {
   if (session) {
+    if (isSessionExpired(session) && !session.refreshToken) {
+      clearAuthSession()
+      return null
+    }
+
     return session
   }
 
   session = readStoredSession()
+
+  if (session && isSessionExpired(session) && !session.refreshToken) {
+    clearAuthSession()
+    return null
+  }
+
   return session
 }
 

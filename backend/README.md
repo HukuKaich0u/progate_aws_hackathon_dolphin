@@ -34,7 +34,7 @@ AWS を別担当が用意する場合は、必要な返却物と作業範囲を 
 2. Docker Compose で起動する
 
 ```bash
-docker compose up --build
+make up
 ```
 
 3. ヘルスチェックを叩く
@@ -57,6 +57,9 @@ live 疎通時は `dummy-token` ではなく、Cognito で発行した実 token 
 
 ## Development
 
+- 起動: `make up`
+- 停止: `make down`
+- logs: `make logs`
 - フォーマット: `cargo fmt --manifest-path backend/Cargo.toml`
 - テスト: `cargo test --manifest-path backend/Cargo.toml`
 - 型チェック: `cargo check --manifest-path backend/Cargo.toml`

@@ -1,5 +1,5 @@
 import { getAppEnv } from '../../lib/config/env'
-import { setAuthSession } from './auth-session'
+import { clearAuthSession, getAuthSession, setAuthSession, type AuthSession } from './auth-session'
 
 const AUTH_PENDING_STORAGE_KEY = 'dolphin.auth.pending'
 
@@ -14,6 +14,15 @@ type TokenResponse = {
   expires_in: number
   id_token: string
   refresh_token?: string
+}
+
+function buildAuthSession(tokens: TokenResponse, currentSession: AuthSession | null): AuthSession {
+  return {
+    accessToken: tokens.access_token,
+    expiresAt: Date.now() + tokens.expires_in * 1000,
+    idToken: tokens.id_token,
+    refreshToken: tokens.refresh_token ?? currentSession?.refreshToken ?? null,
+  }
 }
 
 function encodeBase64Url(buffer: Uint8Array) {
@@ -109,16 +118,56 @@ export async function completeAuthCallback(searchParams: URLSearchParams) {
 
   const tokens = (await response.json()) as TokenResponse
 
-  setAuthSession({
-    accessToken: tokens.access_token,
-    expiresAt: Date.now() + tokens.expires_in * 1000,
-    idToken: tokens.id_token,
-    refreshToken: tokens.refresh_token ?? null,
-  })
+  setAuthSession(buildAuthSession(tokens, null))
 
   clearPendingAuthRequest()
 
   return {
     redirectTo: pendingAuthRequest.redirectTo,
   }
+}
+
+export async function refreshAuthSession() {
+  const env = getAppEnv()
+  const currentSession = getAuthSession()
+
+  if (!currentSession?.refreshToken) {
+    clearAuthSession()
+    return null
+  }
+
+  const response = await fetch(`https://${env.cognitoDomain}/oauth2/token`, {
+    body: new URLSearchParams({
+      client_id: env.cognitoClientId,
+      grant_type: 'refresh_token',
+      refresh_token: currentSession.refreshToken,
+    }),
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    method: 'POST',
+  })
+
+  if (!response.ok) {
+    clearAuthSession()
+    return null
+  }
+
+  const tokens = (await response.json()) as TokenResponse
+  const nextSession = buildAuthSession(tokens, currentSession)
+  setAuthSession(nextSession)
+  return nextSession
+}
+
+export function beginLogout(redirectTo?: string) {
+  const env = getAppEnv()
+  const logoutRedirectUri = redirectTo ?? env.cognitoLogoutRedirectUri
+  const params = new URLSearchParams({
+    client_id: env.cognitoClientId,
+    logout_uri: logoutRedirectUri,
+  })
+
+  clearAuthSession()
+  clearPendingAuthRequest()
+  window.location.assign(`https://${env.cognitoDomain}/logout?${params.toString()}`)
 }
