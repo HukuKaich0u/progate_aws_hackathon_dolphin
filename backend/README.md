@@ -29,6 +29,8 @@ cp backend/.env.example backend/.env
 - `COGNITO_USER_POOL_ID`
 - `COGNITO_CLIENT_ID`
 
+AWS を別担当が用意する場合は、必要な返却物と作業範囲を [docs/aws-setup.md](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/docs/aws-setup.md) にまとめています。
+
 2. Docker Compose で起動する
 
 ```bash
@@ -50,6 +52,8 @@ curl -X POST http://localhost:3000/v1/rooms \
   -H 'Content-Type: application/json' \
   -d '{"name":"General"}'
 ```
+
+live 疎通時は `dummy-token` ではなく、Cognito で発行した実 token を使ってください。
 
 ## Development
 
