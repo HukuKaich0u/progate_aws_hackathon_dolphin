@@ -42,6 +42,15 @@ curl http://localhost:3000/health
 curl http://localhost:3000/health/db
 ```
 
+4. room API を叩く
+
+```bash
+curl -X POST http://localhost:3000/v1/rooms \
+  -H 'Authorization: Bearer dummy-token' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"General"}'
+```
+
 ## Development
 
 - フォーマット: `cargo fmt --manifest-path backend/Cargo.toml`
@@ -52,5 +61,7 @@ curl http://localhost:3000/health/db
 
 - `src/app`: 起動、router、state
 - `src/features/health`: 最小縦スライス
+- `src/features/auth`: 認証コンテキストと extractor
+- `src/features/rooms`: room / meeting lifecycle
 - `src/infra/db`: Postgres 接続
 - `migrations/`: `sqlx` migration 用
