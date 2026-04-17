@@ -8,6 +8,7 @@ use tracing::info;
 
 #[tokio::main]
 async fn main() -> Result<(), backend::error::AppError> {
+    dotenvy::dotenv().ok();
     tracing_subscriber::fmt::init();
 
     let config = AppConfig::from_env()?;
@@ -17,11 +18,13 @@ async fn main() -> Result<(), backend::error::AppError> {
     let app = create_router(state.clone());
     let listener = TcpListener::bind(socket_addr)
         .await
-        .map_err(sqlx::Error::Io)?;
+        .map_err(backend::error::AppError::ServerIo)?;
 
     info!("backend listening on {}", state.config.socket_addr()?);
 
-    axum::serve(listener, app).await.map_err(sqlx::Error::Io)?;
+    axum::serve(listener, app)
+        .await
+        .map_err(backend::error::AppError::ServerIo)?;
 
     Ok(())
 }

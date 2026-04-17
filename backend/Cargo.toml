@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8"
+dotenvy = "0.15.7"
 serde = { version = "1", features = ["derive"] }
 sqlx = { version = "0.8", features = ["postgres", "runtime-tokio-rustls"] }
 thiserror = "2"
@@ -13,4 +14,5 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 
 [dev-dependencies]
+temp-env = "0.3.6"
 tower = { version = "0.5", features = ["util"] }

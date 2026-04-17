@@ -21,6 +21,14 @@ Rust バックエンドはこのディレクトリ配下で実装する想定で
 cp backend/.env.example backend/.env
 ```
 
+最低限、次の設定を埋める想定です。
+
+- `DATABASE_URL`
+- `AWS_REGION`
+- `CHIME_MEDIA_REGION`
+- `COGNITO_USER_POOL_ID`
+- `COGNITO_CLIENT_ID`
+
 2. Docker Compose で起動する
 
 ```bash

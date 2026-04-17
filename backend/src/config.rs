@@ -7,6 +7,10 @@ pub struct AppConfig {
     pub host: String,
     pub port: u16,
     pub database_url: String,
+    pub aws_region: String,
+    pub chime_media_region: String,
+    pub cognito_user_pool_id: String,
+    pub cognito_client_id: String,
 }
 
 impl AppConfig {
@@ -19,13 +23,20 @@ impl AppConfig {
                 key: "APP_PORT",
                 source,
             })?;
-        let database_url =
-            env::var("DATABASE_URL").map_err(|_| AppError::MissingConfig("DATABASE_URL"))?;
+        let database_url = required_var("DATABASE_URL")?;
+        let aws_region = required_var("AWS_REGION")?;
+        let chime_media_region = required_var("CHIME_MEDIA_REGION")?;
+        let cognito_user_pool_id = required_var("COGNITO_USER_POOL_ID")?;
+        let cognito_client_id = required_var("COGNITO_CLIENT_ID")?;
 
         Ok(Self {
             host,
             port,
             database_url,
+            aws_region,
+            chime_media_region,
+            cognito_user_pool_id,
+            cognito_client_id,
         })
     }
 
@@ -36,5 +47,64 @@ impl AppConfig {
                 value: format!("{}:{}", self.host, self.port),
                 source,
             })
+    }
+}
+
+fn required_var(key: &'static str) -> Result<String, AppError> {
+    env::var(key).map_err(|_| AppError::MissingConfig(key))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::AppConfig;
+    use crate::error::AppError;
+
+    #[test]
+    fn from_env_requires_aws_and_cognito_settings() {
+        temp_env::with_vars(
+            [
+                ("APP_HOST", Some("127.0.0.1")),
+                ("APP_PORT", Some("4000")),
+                (
+                    "DATABASE_URL",
+                    Some("postgres://postgres:postgres@localhost:5432/app"),
+                ),
+                ("AWS_REGION", None),
+                ("CHIME_MEDIA_REGION", Some("ap-northeast-1")),
+                ("COGNITO_USER_POOL_ID", Some("ap-northeast-1_pool")),
+                ("COGNITO_CLIENT_ID", Some("client-id")),
+            ],
+            || {
+                let error = AppConfig::from_env().expect_err("missing AWS_REGION should fail");
+
+                assert!(matches!(error, AppError::MissingConfig("AWS_REGION")));
+            },
+        );
+    }
+
+    #[test]
+    fn from_env_debug_includes_aws_and_cognito_settings() {
+        temp_env::with_vars(
+            [
+                ("APP_HOST", Some("127.0.0.1")),
+                ("APP_PORT", Some("4000")),
+                (
+                    "DATABASE_URL",
+                    Some("postgres://postgres:postgres@localhost:5432/app"),
+                ),
+                ("AWS_REGION", Some("ap-northeast-1")),
+                ("CHIME_MEDIA_REGION", Some("ap-northeast-1")),
+                ("COGNITO_USER_POOL_ID", Some("ap-northeast-1_pool")),
+                ("COGNITO_CLIENT_ID", Some("client-id")),
+            ],
+            || {
+                let config = AppConfig::from_env().expect("config should load");
+                let debug_output = format!("{config:?}");
+
+                assert!(debug_output.contains("aws_region"));
+                assert!(debug_output.contains("ap-northeast-1_pool"));
+                assert!(debug_output.contains("client-id"));
+            },
+        );
     }
 }
