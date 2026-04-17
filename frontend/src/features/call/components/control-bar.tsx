@@ -1,3 +1,4 @@
+import { Button } from '../../../components/ui/button'
 import { useCallController } from '../media/call-controller-context'
 import { useCallUiStore } from '../store/call-ui-store'
 
@@ -10,18 +11,18 @@ export function ControlBar() {
 
   return (
     <div>
-      <button onClick={() => void controller.toggleMicrophone()} type="button">
+      <Button onClick={() => void controller.toggleMicrophone()} type="button">
         {isMicEnabled ? 'Mic on' : 'Mic off'}
-      </button>
-      <button onClick={() => void controller.toggleCamera()} type="button">
+      </Button>
+      <Button onClick={() => void controller.toggleCamera()} type="button">
         {isCameraEnabled ? 'Camera on' : 'Camera off'}
-      </button>
-      <button onClick={() => controller.toggleScreenShare()} type="button">
+      </Button>
+      <Button onClick={() => controller.toggleScreenShare()} type="button">
         {isScreenSharing ? 'Stop share' : 'Share screen'}
-      </button>
-      <button onClick={() => setDeviceSettingsOpen(true)} type="button">
+      </Button>
+      <Button onClick={() => setDeviceSettingsOpen(true)} type="button">
         Devices
-      </button>
+      </Button>
     </div>
   )
 }

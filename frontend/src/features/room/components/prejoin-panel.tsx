@@ -1,3 +1,4 @@
+import { Button } from '../../../components/ui/button'
 import type { Room } from '../types'
 
 type PrejoinPanelProps = {
@@ -9,9 +10,9 @@ export function PrejoinPanel({ onJoin, room }: PrejoinPanelProps) {
   return (
     <section>
       <p>{room.name}</p>
-      <button onClick={onJoin} type="button">
+      <Button onClick={onJoin} type="button">
         Join now
-      </button>
+      </Button>
     </section>
   )
 }

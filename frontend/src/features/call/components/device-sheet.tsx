@@ -1,3 +1,5 @@
+import { Button } from '../../../components/ui/button'
+import { Sheet } from '../../../components/ui/sheet'
 import { useCallUiStore } from '../store/call-ui-store'
 
 export function DeviceSheet() {
@@ -11,12 +13,12 @@ export function DeviceSheet() {
   }
 
   return (
-    <section>
+    <Sheet open={isDeviceSettingsOpen}>
       <p>Audio input: {selectedAudioInputId ?? 'default'}</p>
       <p>Video input: {selectedVideoInputId ?? 'default'}</p>
-      <button onClick={() => setDeviceSettingsOpen(false)} type="button">
+      <Button onClick={() => setDeviceSettingsOpen(false)} type="button">
         Close devices
-      </button>
-    </section>
+      </Button>
+    </Sheet>
   )
 }

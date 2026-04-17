@@ -1,3 +1,4 @@
+import { Badge } from '../../../components/ui/badge'
 import { useCallUiStore } from '../store/call-ui-store'
 
 export function ConnectionBanner() {
@@ -7,5 +8,5 @@ export function ConnectionBanner() {
     return null
   }
 
-  return <p>Reconnecting...</p>
+  return <Badge>Reconnecting...</Badge>
 }

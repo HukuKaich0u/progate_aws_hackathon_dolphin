@@ -1,7 +1,16 @@
+import type { RoomErrorVariant } from '../types'
+
 type RoomErrorStateProps = {
-  message?: string
+  variant: RoomErrorVariant
 }
 
-export function RoomErrorState({ message = 'Unable to load room.' }: RoomErrorStateProps) {
-  return <p>{message}</p>
+const messages: Record<RoomErrorVariant, string> = {
+  'access-denied': 'Access denied.',
+  'join-failed': 'Unable to join call.',
+  'not-found': 'Room not found.',
+  'temporary-error': 'Temporary error. Please try again.',
+}
+
+export function RoomErrorState({ variant }: RoomErrorStateProps) {
+  return <p>{messages[variant]}</p>
 }

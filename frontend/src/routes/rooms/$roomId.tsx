@@ -11,19 +11,22 @@ import { joinRoom } from '../../features/room/api/join-room'
 import { PrejoinPanel } from '../../features/room/components/prejoin-panel'
 import { RoomErrorState } from '../../features/room/components/room-error-state'
 import { roomQueryOptions } from '../../features/room/queries'
-import type { Room } from '../../features/room/types'
-import { useMemo } from 'react'
+import { RoomRequestError, type Room } from '../../features/room/types'
+import { useMemo, useState } from 'react'
 
 type RoomRouteComponentProps = {
   fetchRoom?: (roomId: string) => Promise<Room>
+  joinRoomRequest?: (roomId: string) => Promise<unknown>
   roomId?: string
 }
 
 export function RoomRouteComponent({
   fetchRoom = getRoom,
+  joinRoomRequest = joinRoom,
   roomId = 'room-1',
 }: RoomRouteComponentProps) {
   const roomQuery = useQuery(roomQueryOptions(roomId, fetchRoom))
+  const [joinError, setJoinError] = useState(false)
   const controller = useMemo(
     () =>
       new CallController({
@@ -38,13 +41,24 @@ export function RoomRouteComponent({
   }
 
   if (roomQuery.isError) {
-    return <RoomErrorState />
+    const errorVariant =
+      roomQuery.error instanceof RoomRequestError ? roomQuery.error.variant : 'temporary-error'
+
+    return <RoomErrorState variant={errorVariant} />
   }
 
   return (
     <CallControllerProvider controller={controller}>
       <ConnectionBanner />
-      <PrejoinPanel onJoin={() => void joinRoom(roomId)} room={roomQuery.data} />
+      {joinError ? <RoomErrorState variant="join-failed" /> : null}
+      <PrejoinPanel
+        onJoin={() => {
+          void joinRoomRequest(roomId).catch(() => {
+            setJoinError(true)
+          })
+        }}
+        room={roomQuery.data}
+      />
       <ControlBar />
       <DeviceSheet />
     </CallControllerProvider>
