@@ -15,6 +15,15 @@ pub struct RoomDetail {
     pub has_active_meeting: bool,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RoomJoin {
+    pub room: Room,
+    pub meeting_id: String,
+    pub external_meeting_id: String,
+    pub attendee_id: String,
+    pub join_token: String,
+}
+
 impl From<RoomRecord> for Room {
     fn from(value: RoomRecord) -> Self {
         Self {

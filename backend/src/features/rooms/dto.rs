@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::features::rooms::domain::{Room, RoomDetail};
+use crate::features::rooms::domain::{Room, RoomDetail, RoomJoin};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateRoomRequest {
@@ -21,6 +21,15 @@ pub struct RoomDetailResponse {
     pub has_active_meeting: bool,
 }
 
+#[derive(Debug, Deserialize, Serialize, PartialEq, Eq)]
+pub struct JoinRoomResponse {
+    pub room_id: Uuid,
+    pub meeting_id: String,
+    pub external_meeting_id: String,
+    pub attendee_id: String,
+    pub join_token: String,
+}
+
 impl From<Room> for RoomResponse {
     fn from(value: Room) -> Self {
         Self {
@@ -36,6 +45,18 @@ impl From<RoomDetail> for RoomDetailResponse {
             room_id: value.room.id,
             name: value.room.name,
             has_active_meeting: value.has_active_meeting,
+        }
+    }
+}
+
+impl From<RoomJoin> for JoinRoomResponse {
+    fn from(value: RoomJoin) -> Self {
+        Self {
+            room_id: value.room.id,
+            meeting_id: value.meeting_id,
+            external_meeting_id: value.external_meeting_id,
+            attendee_id: value.attendee_id,
+            join_token: value.join_token,
         }
     }
 }

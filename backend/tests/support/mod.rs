@@ -42,22 +42,22 @@ impl MeetingProvider for FakeMeetingProvider {
     async fn create_meeting(
         &self,
         _room_id: Uuid,
-        _meeting_id: Uuid,
+        meeting_id: Uuid,
     ) -> Result<ProvisionedMeeting, AppError> {
         Ok(ProvisionedMeeting {
-            meeting_id: "meeting-1".to_owned(),
-            external_meeting_id: "external-1".to_owned(),
+            meeting_id: format!("meeting-{meeting_id}"),
+            external_meeting_id: format!("external-{meeting_id}"),
         })
     }
 
     async fn create_attendee(
         &self,
-        _meeting_id: &str,
-        _user_id: &str,
+        meeting_id: &str,
+        user_id: &str,
     ) -> Result<ProvisionedAttendee, AppError> {
         Ok(ProvisionedAttendee {
-            attendee_id: "attendee-1".to_owned(),
-            join_token: "token-1".to_owned(),
+            attendee_id: format!("attendee-{meeting_id}-{user_id}"),
+            join_token: format!("token-{user_id}"),
         })
     }
 
