@@ -24,6 +24,8 @@ pub enum AppError {
     },
     #[error("unauthorized")]
     Unauthorized,
+    #[error("bad request")]
+    BadRequest(&'static str),
     #[error("not found")]
     NotFound,
     #[error("database error: {0}")]
@@ -43,6 +45,7 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, error) = match self {
             Self::Unauthorized => (StatusCode::UNAUTHORIZED, "unauthorized"),
+            Self::BadRequest(_) => (StatusCode::BAD_REQUEST, "bad_request"),
             Self::NotFound => (StatusCode::NOT_FOUND, "not_found"),
             Self::MissingConfig(_)
             | Self::InvalidConfig { .. }

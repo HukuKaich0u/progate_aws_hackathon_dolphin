@@ -1,8 +1,14 @@
-use axum::{Router, routing::get};
+use axum::{
+    Router,
+    routing::{get, post},
+};
 
 use crate::{
     app::{request_id::apply_request_id, state::AppState},
-    features::health::handler::{db_health_handler, health_handler},
+    features::{
+        health::handler::{db_health_handler, health_handler},
+        rooms::handler::{create_room_handler, get_room_handler},
+    },
 };
 
 pub fn create_router(state: AppState) -> Router {
@@ -10,6 +16,8 @@ pub fn create_router(state: AppState) -> Router {
         Router::new()
             .route("/health", get(health_handler))
             .route("/health/db", get(db_health_handler))
+            .route("/v1/rooms", post(create_room_handler))
+            .route("/v1/rooms/{room_id}", get(get_room_handler))
             .with_state(state),
     )
 }

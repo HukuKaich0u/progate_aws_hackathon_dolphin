@@ -66,6 +66,7 @@ impl MeetingProvider for FakeMeetingProvider {
     }
 }
 
+#[allow(dead_code)]
 pub fn test_state(token_verifier: Arc<dyn TokenVerifier>) -> AppState {
     let config = AppConfig {
         host: "127.0.0.1".to_owned(),
@@ -80,9 +81,26 @@ pub fn test_state(token_verifier: Arc<dyn TokenVerifier>) -> AppState {
         .connect_lazy(&config.database_url)
         .expect("pool config should be valid");
 
+    test_state_with_pool(db_pool, token_verifier)
+}
+
+pub fn test_state_with_pool(
+    pool: sqlx::PgPool,
+    token_verifier: Arc<dyn TokenVerifier>,
+) -> AppState {
+    let config = AppConfig {
+        host: "127.0.0.1".to_owned(),
+        port: 3000,
+        database_url: "postgres://postgres:postgres@127.0.0.1:5432/postgres".to_owned(),
+        aws_region: "ap-northeast-1".to_owned(),
+        chime_media_region: "ap-northeast-1".to_owned(),
+        cognito_user_pool_id: "ap-northeast-1_pool".to_owned(),
+        cognito_client_id: "client-id".to_owned(),
+    };
+
     AppState {
         config,
-        db_pool,
+        db_pool: pool,
         token_verifier,
         meeting_provider: Arc::new(FakeMeetingProvider),
     }
