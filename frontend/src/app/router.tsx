@@ -31,7 +31,7 @@ const authCallbackRoute = createRoute({
 const roomRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/rooms/$roomId',
-  beforeLoad: ({ location }) => requireAuth(location.pathname + location.search + location.hash),
+  beforeLoad: ({ location }) => requireAuth(location.href),
   component: RoomRoutePage,
 })
 
