@@ -1,4 +1,5 @@
 import { createRoute, createRouter, createRootRoute } from '@tanstack/react-router'
+import { HomePage } from '../features/home/home-page'
 import { requireAuth } from '../features/auth/require-auth'
 import { RoomRouteComponent } from '../routes/rooms/$roomId'
 import { AuthCallbackRouteComponent } from '../routes/auth/callback'
@@ -12,7 +13,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => null,
+  component: HomePage,
 })
 
 const loginRoute = createRoute({

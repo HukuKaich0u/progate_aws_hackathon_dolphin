@@ -19,18 +19,23 @@ export function RootLayout({
   const currentUserQuery = useQuery(currentUserQueryOptions(fetchCurrentUser))
 
   return (
-    <div data-testid="app-root">
-      <header>
-        {currentUserQuery.data ? <p>Signed in as {currentUserQuery.data.email ?? currentUserQuery.data.userId}</p> : null}
-        {currentUserQuery.isPending ? <p>Checking session...</p> : null}
-        {!currentUserQuery.isPending && !currentUserQuery.data ? <p>Not signed in</p> : null}
+    <div className="app-shell" data-testid="app-root">
+      <header className="app-header">
+        <div>
+          <p className="app-brand">Dolphin</p>
+          {currentUserQuery.data ? (
+            <p className="app-status">Signed in as {currentUserQuery.data.email ?? currentUserQuery.data.userId}</p>
+          ) : null}
+          {currentUserQuery.isPending ? <p className="app-status">Checking session...</p> : null}
+          {!currentUserQuery.isPending && !currentUserQuery.data ? <p className="app-status">Not signed in</p> : null}
+        </div>
         {currentUserQuery.data ? (
           <button onClick={() => performLogout()} type="button">
             Sign out
           </button>
         ) : null}
       </header>
-      {outlet ?? <Outlet />}
+      <div className="app-content">{outlet ?? <Outlet />}</div>
     </div>
   )
 }

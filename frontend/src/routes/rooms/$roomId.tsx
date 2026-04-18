@@ -49,18 +49,35 @@ export function RoomRouteComponent({
 
   return (
     <CallControllerProvider controller={controller}>
-      <ConnectionBanner />
-      {joinError ? <RoomErrorState variant="join-failed" /> : null}
-      <PrejoinPanel
-        onJoin={() => {
-          void joinRoomRequest(roomId).catch(() => {
-            setJoinError(true)
-          })
-        }}
-        room={roomQuery.data}
-      />
-      <ControlBar />
-      <DeviceSheet />
+      <main className="room-page">
+        <section className="room-stage">
+          <div className="stage-panel">
+            <p className="eyebrow">Active stage</p>
+            <h1 className="stage-title">{roomQuery.data.name}</h1>
+            <p className="stage-copy">
+              Main participant stage, pinned speaker area, and realtime call surfaces land here.
+            </p>
+          </div>
+          <div className="participant-grid">
+            <div className="participant-tile">Local preview</div>
+            <div className="participant-tile participant-tile--muted">Remote participant</div>
+            <div className="participant-tile participant-tile--muted">Overflow slot</div>
+            <div className="participant-tile participant-tile--muted">Overflow slot</div>
+          </div>
+        </section>
+        <ConnectionBanner />
+        {joinError ? <RoomErrorState variant="join-failed" /> : null}
+        <PrejoinPanel
+          onJoin={() => {
+            void joinRoomRequest(roomId).catch(() => {
+              setJoinError(true)
+            })
+          }}
+          room={roomQuery.data}
+        />
+        <ControlBar />
+        <DeviceSheet />
+      </main>
     </CallControllerProvider>
   )
 }

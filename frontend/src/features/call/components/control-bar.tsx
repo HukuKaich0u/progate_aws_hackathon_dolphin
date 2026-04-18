@@ -10,7 +10,7 @@ export function ControlBar() {
   const setDeviceSettingsOpen = useCallUiStore((state) => state.setDeviceSettingsOpen)
 
   return (
-    <div>
+    <div className="control-bar">
       <Button onClick={() => void controller.toggleMicrophone()} type="button">
         {isMicEnabled ? 'Mic on' : 'Mic off'}
       </Button>
