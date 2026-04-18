@@ -2,9 +2,9 @@
 
 ## 概要
 
-バックエンドは `Rust` を主軸にし、業務 API、認証後のドメイン処理、マッチング、リアルタイム通話の制御、イベント収集を担当します。
+バックエンドは `Rust` を主軸にし、認証後の業務 API と通話 control plane を担当します。
 
-このプロダクトでは、通常の REST API に加えて、通話セッション管理と低遅延の signaling が重要になります。そのため、同期的な業務処理と非同期イベント処理の境界を明確に分ける構成を取ります。
+このプロダクトでは media plane を `Amazon Chime SDK` に委譲し、backend は room、meeting lifecycle、attendee 発行、presence、イベント収集を担当します。
 
 ## 推奨スタック
 
@@ -16,49 +16,40 @@
 - `PostgreSQL`
 - `Redis`
 - `tracing`
-- `OpenTelemetry`
-- `tonic` または `HTTP/gRPC` の併用
+- `CloudWatch Logs / Metrics`
 
 ## バックエンドの主要責務
 
 ### 業務 API
 
-- ユーザー登録
-- プロフィール管理
-- 録音プロフィールのメタデータ管理
-- 候補取得
-- マッチ管理
-- 通報処理
+- ユーザー関連 API
+- room 管理
+- 通話履歴やイベントの管理
+
+### 通話 control plane
+
+- room 作成
+- active meeting 解決
+- `Chime meeting` 作成
+- `Chime attendee` 発行
+- join / leave lifecycle 管理
 
 ### リアルタイム制御
 
-- signaling
-- セッション生成
-- SDP/ICE の中継
+- WebSocket 接続
 - presence 管理
-- 通話マッチング
-- 接続状態の管理
-
-### データ処理の起点
-
-- 音声アップロード後イベント発火
-- 推薦ログの収集
-- 通話品質ログの収集
-- 通報・モデレーションイベントの収集
+- mute / hand raise などの room state 同期
+- `Redis` を使った fan-out
 
 ## 想定コンポーネント
 
 ### API Service
 
-認証後の通常 API を担当します。プロフィール、マッチ、候補、履歴などの業務処理はここに集約します。
+認証後の通常 API と room / meeting lifecycle を担当します。Phase 1 では `create room`, `get room`, `join room`, `leave room` の HTTP API を実装します。
 
-### Signaling Service
+### Realtime Gateway
 
-WebSocket ベースで signaling を処理します。SDP や ICE candidate の交換、通話セッションの初期化、接続失敗時の再試行制御を担当します。
-
-### Matchmaking Service
-
-オンライン状態、候補選定、呼び出し対象決定を担当します。推薦結果をそのまま出すのではなく、現在のオンライン状況や制約条件を加味して最終決定します。
+Phase 2 で WebSocket を受け、presence や room state のリアルタイム同期を担当します。
 
 ### Event Collector
 
@@ -68,42 +59,46 @@ WebSocket ベースで signaling を処理します。SDP や ICE candidate の�
 
 ### PostgreSQL
 
-主データベースです。ユーザー、プロフィール、マッチ、通話履歴、メッセージメタデータなどの整合性が必要なデータを保存します。
+正本データを保存します。
+
+- room
+- meeting
+- meeting_attendees
+- 将来の履歴や通報データ
 
 ### Redis
 
 短命データを扱います。
 
 - presence
-- signaling 状態
+- WebSocket 配信用の room state
 - 一時セッション
-- 接続待ちキュー
 
 ### S3
 
-音声ファイル本体、前処理成果物、学習用データ、モデル成果物の保存に使います。
+将来の音声ファイル、前処理成果物、学習用データ、モデル成果物の保存先です。
 
-## WebRTC の位置づけ
+## Chime の位置づけ
 
-このプロダクトでは、通話基盤を自前 WebRTC で持つ前提です。バックエンドは次を担当します。
+このプロダクトでは、通話の media plane を `Amazon Chime SDK` で扱います。backend の責務は次です。
 
-- signaling 制御
-- ルームまたはセッション管理
-- TURN 利用制御
+- room / meeting 制御
+- meeting 作成と終了
+- attendee 発行
 - 通話イベントの永続化
 
-メディア転送そのものは WebRTC の責務ですが、接続成立率や障害解析の観点では signaling 層の設計品質が重要です。
+音声映像転送そのものは Chime の責務に寄せます。
 
 ## 設計方針
 
 ### 縦スライス優先
 
-機能単位で責務を閉じる構成にします。巨大な `service.rs` や `models.rs` にまとめるのではなく、プロフィール、マッチ、通話、モデレーションのように機能で分けます。
+機能単位で責務を閉じる構成にします。`auth`, `rooms`, `health` のように feature ごとに handler / usecase / dto / store を分けます。
 
 ### 状態遷移を明示
 
-通話系は特に、待機、呼び出し中、接続中、接続済み、切断、失敗の状態を明示して扱います。暗黙的なフラグの組み合わせで管理しないことが重要です。
+通話系は特に、`room` と `meeting` を分離し、`active` と `ended` を明示的に扱います。暗黙的なフラグの組み合わせで管理しません。
 
-### ML との疎結合
+### AWS SDK と外部境界の分離
 
-Rust バックエンドは学習処理を持たず、推論サービスとは API 経由で連携します。推薦や埋め込み生成の詳細をアプリケーションロジックに埋め込まない設計にします。
+`Cognito verifier` や `Chime client` は port と adapter を分け、handler / usecase から直接 SDK を呼ばない構成を維持します。
