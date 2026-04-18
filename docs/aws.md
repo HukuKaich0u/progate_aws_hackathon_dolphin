@@ -6,7 +6,7 @@
 
 バックエンドは room、meeting lifecycle、認証、presence、イベント収集を担当し、公開入口、実行基盤、データ基盤、監視基盤は AWS を中心に構成します。
 
-実際のセットアップ作業を他メンバーに依頼する場合は、[aws-setup.md](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/docs/aws-setup.md) を作業指示書として使ってください。
+実際のセットアップ作業を他メンバーに依頼する場合は、[aws-setup.md](./aws-setup.md) を作業指示書として使ってください。
 
 ## 基本方針
 
@@ -77,7 +77,7 @@ Rust の API コンテナを `ECS` で動かします。Phase 1 は stateless �
 
 ### リアルタイム状態同期
 
-Phase 2 ではクライアントが `ALB` 経由で WebSocket に接続し、presence や mute などの room state を `Redis` で配信します。
+Phase 2 ではクライアントが `ALB` 経由で `GET /v1/ws/rooms/:room_id` に接続し、presence と self mute を `Redis` で配信します。WebSocket admission は先に HTTP `join` 済みであることが前提です。
 
 ## 初期構成の推奨
 
