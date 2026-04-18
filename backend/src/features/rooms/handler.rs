@@ -57,7 +57,14 @@ pub async fn leave_room_handler(
     Path(room_id): Path<Uuid>,
 ) -> Result<StatusCode, AppError> {
     let store = SqlxRoomLifecycleStore::new(state.db_pool.clone());
-    usecase::leave_room(&store, state.meeting_provider.as_ref(), &user, room_id).await?;
+    usecase::leave_room(
+        &store,
+        state.meeting_provider.as_ref(),
+        state.realtime_store.as_ref(),
+        &user,
+        room_id,
+    )
+    .await?;
 
     Ok(StatusCode::NO_CONTENT)
 }

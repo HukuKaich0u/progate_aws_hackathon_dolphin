@@ -1,7 +1,10 @@
 use backend::{
     app::{router::create_router, state::AppState},
     config::AppConfig,
-    infra::{auth::cognito_token_verifier, chime::chime_meeting_provider, db::create_pool},
+    infra::{
+        auth::cognito_token_verifier, chime::chime_meeting_provider, db::create_pool,
+        realtime::redis_realtime_store,
+    },
 };
 use tokio::net::TcpListener;
 use tracing::info;
@@ -14,6 +17,8 @@ async fn main() -> Result<(), backend::error::AppError> {
     let config = AppConfig::from_env()?;
     let socket_addr = config.socket_addr()?;
     let db_pool = create_pool(&config.database_url).await?;
+    let redis_client = redis::Client::open(config.redis_url.clone())
+        .map_err(|source| backend::error::AppError::Dependency(source.to_string()))?;
     let aws_sdk_config = aws_config::defaults(aws_config::BehaviorVersion::latest())
         .load()
         .await;
@@ -23,6 +28,7 @@ async fn main() -> Result<(), backend::error::AppError> {
         meeting_provider: chime_meeting_provider(chime_client, &config),
         config,
         db_pool,
+        realtime_store: redis_realtime_store(redis_client),
     };
     let app = create_router(state.clone());
     let listener = TcpListener::bind(socket_addr)

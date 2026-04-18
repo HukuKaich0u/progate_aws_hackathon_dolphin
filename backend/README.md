@@ -24,12 +24,13 @@ cp backend/.env.example backend/.env
 最低限、次の設定を埋める想定です。
 
 - `DATABASE_URL`
+- `REDIS_URL`
 - `AWS_REGION`
 - `CHIME_MEDIA_REGION`
 - `COGNITO_USER_POOL_ID`
 - `COGNITO_CLIENT_ID`
 
-AWS を別担当が用意する場合は、必要な返却物と作業範囲を [docs/aws-setup.md](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/docs/aws-setup.md) にまとめています。
+AWS を別担当が用意する場合は、必要な返却物と作業範囲を [../docs/aws-setup.md](../docs/aws-setup.md) にまとめています。
 
 2. Docker Compose で起動する
 
@@ -54,6 +55,10 @@ curl -X POST http://localhost:3000/v1/rooms \
 ```
 
 live 疎通時は `dummy-token` ではなく、Cognito で発行した実 token を使ってください。
+
+5. WebSocket realtime を確認する
+
+`POST /v1/rooms/:room_id/join` のあとにだけ、`GET /v1/ws/rooms/:room_id` へ接続できます。初期実装の realtime scope は `presence + self mute` のみです。
 
 ## Development
 
@@ -83,7 +88,7 @@ backend/scripts/live_smoke.sh
 
 この script は `health -> create room -> get room -> join room -> leave room -> get room after leave` を順に叩きます。
 
-`docker compose up --build` でローカル backend を起動する場合も、live smoke に必要な `AWS_REGION`, `CHIME_MEDIA_REGION`, `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID` は `compose.yaml` から渡るようにしてあります。
+`docker compose up --build` でローカル backend を起動する場合も、live smoke に必要な `REDIS_URL`, `AWS_REGION`, `CHIME_MEDIA_REGION`, `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID` は `compose.yaml` から渡るようにしてあります。
 
 ## Layout
 
@@ -91,5 +96,7 @@ backend/scripts/live_smoke.sh
 - `src/features/health`: 最小縦スライス
 - `src/features/auth`: 認証コンテキストと extractor
 - `src/features/rooms`: room / meeting lifecycle
+- `src/features/realtime`: WebSocket admission / presence / self mute
 - `src/infra/db`: Postgres 接続
+- `src/infra/realtime`: Redis hash + pub/sub
 - `migrations/`: `sqlx` migration 用

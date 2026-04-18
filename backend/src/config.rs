@@ -7,6 +7,7 @@ pub struct AppConfig {
     pub host: String,
     pub port: u16,
     pub database_url: String,
+    pub redis_url: String,
     pub aws_region: String,
     pub chime_media_region: String,
     pub cognito_user_pool_id: String,
@@ -24,6 +25,7 @@ impl AppConfig {
                 source,
             })?;
         let database_url = required_var("DATABASE_URL")?;
+        let redis_url = required_var("REDIS_URL")?;
         let aws_region = required_var("AWS_REGION")?;
         let chime_media_region = required_var("CHIME_MEDIA_REGION")?;
         let cognito_user_pool_id = required_var("COGNITO_USER_POOL_ID")?;
@@ -33,6 +35,7 @@ impl AppConfig {
             host,
             port,
             database_url,
+            redis_url,
             aws_region,
             chime_media_region,
             cognito_user_pool_id,
@@ -80,6 +83,7 @@ mod tests {
                     "DATABASE_URL",
                     Some("postgres://postgres:postgres@localhost:5432/app"),
                 ),
+                ("REDIS_URL", Some("redis://127.0.0.1:6379")),
                 ("AWS_REGION", None),
                 ("CHIME_MEDIA_REGION", Some("ap-northeast-1")),
                 ("COGNITO_USER_POOL_ID", Some("ap-northeast-1_pool")),
@@ -94,6 +98,31 @@ mod tests {
     }
 
     #[test]
+    fn from_env_requires_redis_url() {
+        temp_env::with_vars(
+            [
+                ("APP_HOST", Some("127.0.0.1")),
+                ("APP_PORT", Some("4000")),
+                (
+                    "DATABASE_URL",
+                    Some("postgres://postgres:postgres@localhost:5432/app"),
+                ),
+                ("REDIS_URL", Some("redis://127.0.0.1:6379")),
+                ("AWS_REGION", Some("ap-northeast-1")),
+                ("CHIME_MEDIA_REGION", Some("ap-northeast-1")),
+                ("COGNITO_USER_POOL_ID", Some("ap-northeast-1_pool")),
+                ("COGNITO_CLIENT_ID", Some("client-id")),
+                ("REDIS_URL", None),
+            ],
+            || {
+                let error = AppConfig::from_env().expect_err("missing REDIS_URL should fail");
+
+                assert!(matches!(error, AppError::MissingConfig("REDIS_URL")));
+            },
+        );
+    }
+
+    #[test]
     fn from_env_debug_includes_aws_and_cognito_settings() {
         temp_env::with_vars(
             [
@@ -103,6 +132,7 @@ mod tests {
                     "DATABASE_URL",
                     Some("postgres://postgres:postgres@localhost:5432/app"),
                 ),
+                ("REDIS_URL", Some("redis://127.0.0.1:6379")),
                 ("AWS_REGION", Some("ap-northeast-1")),
                 ("CHIME_MEDIA_REGION", Some("ap-northeast-1")),
                 ("COGNITO_USER_POOL_ID", Some("ap-northeast-1_pool")),
@@ -125,6 +155,7 @@ mod tests {
             host: "0.0.0.0".to_owned(),
             port: 3000,
             database_url: "postgres://postgres:postgres@localhost:5432/app".to_owned(),
+            redis_url: "redis://127.0.0.1:6379".to_owned(),
             aws_region: "ap-northeast-1".to_owned(),
             chime_media_region: "ap-northeast-1".to_owned(),
             cognito_user_pool_id: "ap-northeast-1_example".to_owned(),

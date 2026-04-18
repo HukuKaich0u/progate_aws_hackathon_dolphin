@@ -2,7 +2,7 @@
 
 ## 目的
 
-Rust backend の Phase 1 control plane を AWS 上で動かし、`Cognito` で認証されたユーザーが `room create -> room join -> Chime meeting / attendee 発行` まで通る状態を作る。
+Rust backend の Phase 2 realtime scaffold を AWS 上で動かし、`Cognito` で認証されたユーザーが `room create -> room join -> Chime meeting / attendee 発行 -> WebSocket presence/self mute` まで通る状態を作る。
 
 このドキュメントは、AWS セットアップを担当する人向けの作業指示書です。backend 実装側が最低限必要としている AWS リソース、設定値、権限、疎通確認項目をまとめます。
 
@@ -13,8 +13,10 @@ Rust backend の Phase 1 control plane を AWS 上で動かし、`Cognito` で�
 - 通話の media plane は `Amazon Chime SDK Meetings`
 - ログは `CloudWatch Logs`
 - DB は `PostgreSQL`
+- realtime 状態共有は `Redis`
+- WebSocket は `ALB` で待ち受ける
 
-今回は Phase 1 なので、`Redis`, `WebSocket`, `CloudFront`, `Route53`, `ACM` は必須ではありません。将来使う前提ではありますが、この段階では後回しで構いません。
+今回は Phase 2 なので、`Redis` と `ALB WebSocket` は対象に含みます。`CloudFront`, `Route53`, `ACM` は引き続き後回しで構いません。
 
 ## 作ってほしいもの
 
@@ -68,7 +70,7 @@ backend 実行主体に、最低限次の権限を付けてください。
 必要なもの:
 
 - backend から接続できる PostgreSQL
-- Phase 1 の migration を適用できる権限
+- current migration を適用できる権限
 
 共有してほしい値:
 
@@ -93,6 +95,7 @@ backend コンテナに渡す環境変数:
 - `APP_HOST=0.0.0.0`
 - `APP_PORT=3000`
 - `DATABASE_URL`
+- `REDIS_URL`
 - `AWS_REGION`
 - `CHIME_MEDIA_REGION`
 - `COGNITO_USER_POOL_ID`
@@ -101,7 +104,7 @@ backend コンテナに渡す環境変数:
 補足:
 
 - `CHIME_MEDIA_REGION` は `AWS_REGION` と同じで構わない
-- backend は stateless HTTP API なので Phase 1 は単純な ECS service でよい
+- backend は stateless な HTTP + WebSocket API なので、Phase 2 でも単純な ECS service でよい
 
 ## IAM ポリシー例
 
@@ -143,6 +146,7 @@ AWS 担当者から backend 側に渡してほしいものは次です。
 
 ```env
 DATABASE_URL=postgres://...
+REDIS_URL=redis://...
 AWS_REGION=ap-northeast-1
 CHIME_MEDIA_REGION=ap-northeast-1
 COGNITO_USER_POOL_ID=ap-northeast-1_xxxxx
@@ -175,12 +179,19 @@ COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### D. leave 確認
 
-- `POST /v1/rooms/:room_id/leave` が `200`
+- `POST /v1/rooms/:room_id/leave` が `204`
 - 最後の 1 人なら active meeting が終了扱いになる
+
+### E. realtime 確認
+
+- `POST /v1/rooms/:room_id/join` のあとでだけ `GET /v1/ws/rooms/:room_id` が接続できる
+- 接続直後に `snapshot` event が返る
+- 別クライアント接続時に `presence.joined` が流れる
+- `mute.set` で peer に `mute.updated` が流れる
 
 ## API 動作確認例
 
-backend 側には live smoke 用に [backend/scripts/live_smoke.sh](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/backend/scripts/live_smoke.sh) と [backend/scripts/live_smoke.env.example](/Users/KokiAoyagi/Documents/repos/personal/progate_aws_hackathon_dolphin/.worktrees/feat-chime-control-plane-phase1/backend/scripts/live_smoke.env.example) を置いてあります。`TOKEN` と `BACKEND_URL` を入れれば一連の確認をまとめて実行できます。
+backend 側には live smoke 用に [../backend/scripts/live_smoke.sh](../backend/scripts/live_smoke.sh) と [../backend/scripts/live_smoke.env.example](../backend/scripts/live_smoke.env.example) を置いてあります。`TOKEN` と `BACKEND_URL` を入れれば HTTP 側の確認をまとめて実行できます。
 
 ### room 作成
 
@@ -229,6 +240,7 @@ curl -X POST "$BACKEND_URL/v1/rooms/$ROOM_ID/leave" \
 - `CHIME_MEDIA_REGION`
 - `COGNITO_USER_POOL_ID`
 - `COGNITO_CLIENT_ID`
+- `REDIS_URL`
 - `DATABASE_URL` または接続先情報
 - backend に付与した IAM 権限の概要
 - テストユーザーまたは bearer token
@@ -236,10 +248,8 @@ curl -X POST "$BACKEND_URL/v1/rooms/$ROOM_ID/leave" \
 
 ## 次フェーズで追加予定のもの
 
-今回は必須ではないが、次フェーズでは次を追加予定です。
+今回は必須ではないが、次フェーズ以降では次を追加予定です。
 
-- `ALB` での WebSocket
-- `ElastiCache for Redis / Valkey`
 - `CloudFront`
 - `Route53`
 - `ACM`

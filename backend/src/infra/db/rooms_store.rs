@@ -114,6 +114,29 @@ impl RoomLifecycleStore for SqlxRoomLifecycleStore {
         Ok(attendee)
     }
 
+    async fn has_active_attendee(&self, room_id: Uuid, user_id: &str) -> Result<bool, AppError> {
+        let has_active_attendee = sqlx::query_scalar::<_, bool>(
+            r#"
+            SELECT EXISTS (
+                SELECT 1
+                FROM meeting_attendees attendees
+                INNER JOIN meetings meetings ON meetings.id = attendees.meeting_id
+                WHERE meetings.room_id = $1
+                  AND meetings.status = $2
+                  AND attendees.user_id = $3
+                  AND attendees.left_at IS NULL
+            )
+            "#,
+        )
+        .bind(room_id)
+        .bind(ACTIVE_MEETING_STATUS)
+        .bind(user_id)
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(has_active_attendee)
+    }
+
     async fn leave_room(&self, room_id: Uuid, user_id: &str) -> Result<LeaveOutcome, AppError> {
         let mut tx = self.pool.begin().await?;
 
@@ -276,6 +299,47 @@ mod tests {
             .expect("active meeting lookup should succeed");
 
         assert!(active_meeting.is_none(), "meeting should be ended");
+
+        Ok(())
+    }
+
+    #[sqlx::test]
+    async fn has_active_attendee_returns_true_for_joined_user(pool: PgPool) -> sqlx::Result<()> {
+        let store = SqlxRoomLifecycleStore::new(pool);
+        let room = store
+            .create_room(CreateRoomRecord {
+                room_id: Uuid::new_v4(),
+                name: "General".to_owned(),
+                created_by: "user-1".to_owned(),
+            })
+            .await
+            .expect("room should be created");
+        let meeting = store
+            .create_meeting(CreateMeetingRecord {
+                meeting_id: Uuid::new_v4(),
+                room_id: room.id,
+                chime_meeting_id: "chime-meeting-1".to_owned(),
+                external_meeting_id: "external-1".to_owned(),
+            })
+            .await
+            .expect("meeting should be created");
+
+        store
+            .create_attendee(CreateAttendeeRecord {
+                attendee_id: Uuid::new_v4(),
+                meeting_id: meeting.id,
+                user_id: "user-1".to_owned(),
+                chime_attendee_id: "attendee-1".to_owned(),
+            })
+            .await
+            .expect("attendee should be created");
+
+        let has_active_attendee = store
+            .has_active_attendee(room.id, "user-1")
+            .await
+            .expect("membership lookup should succeed");
+
+        assert!(has_active_attendee);
 
         Ok(())
     }
