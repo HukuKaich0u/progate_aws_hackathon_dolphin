@@ -9,7 +9,10 @@ use backend::{
     config::AppConfig,
     error::AppError,
     features::auth::{context::AuthenticatedUser, verifier::TokenVerifier},
-    infra::chime::{MeetingProvider, ProvisionedAttendee, ProvisionedMeeting},
+    infra::{
+        chime::{MeetingProvider, ProvisionedAttendee, ProvisionedMeeting},
+        realtime::default_realtime_store,
+    },
 };
 
 #[derive(Clone)]
@@ -76,6 +79,7 @@ pub fn test_state(token_verifier: Arc<dyn TokenVerifier>) -> AppState {
         chime_media_region: "ap-northeast-1".to_owned(),
         cognito_user_pool_id: "ap-northeast-1_pool".to_owned(),
         cognito_client_id: "client-id".to_owned(),
+        redis_url: "redis://127.0.0.1:6379".to_owned(),
     };
     let db_pool = PgPoolOptions::new()
         .connect_lazy(&config.database_url)
@@ -96,6 +100,7 @@ pub fn test_state_with_pool(
         chime_media_region: "ap-northeast-1".to_owned(),
         cognito_user_pool_id: "ap-northeast-1_pool".to_owned(),
         cognito_client_id: "client-id".to_owned(),
+        redis_url: "redis://127.0.0.1:6379".to_owned(),
     };
 
     AppState {
@@ -103,5 +108,6 @@ pub fn test_state_with_pool(
         db_pool: pool,
         token_verifier,
         meeting_provider: Arc::new(FakeMeetingProvider),
+        realtime_store: default_realtime_store(),
     }
 }
