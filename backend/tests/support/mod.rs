@@ -4,8 +4,9 @@ use std::{
 };
 
 use async_trait::async_trait;
+use futures_util::stream;
 use sqlx::postgres::PgPoolOptions;
-use tokio::net::TcpListener;
+use tokio::{net::TcpListener, sync::broadcast};
 use uuid::Uuid;
 
 use backend::{
@@ -15,8 +16,8 @@ use backend::{
     features::{
         auth::{context::AuthenticatedUser, verifier::TokenVerifier},
         realtime::{
-            dto::{ParticipantSnapshot, RoomSnapshot},
-            store::RealtimeStore,
+            dto::{ParticipantSnapshot, RoomSnapshot, ServerRealtimeEvent},
+            store::{RealtimeEventStream, RealtimeStore},
         },
     },
     infra::{
@@ -130,9 +131,11 @@ pub fn test_state_with_pool_and_realtime_store(
     }
 }
 
+#[allow(dead_code)]
 #[derive(Clone, Default)]
 pub struct FakeRealtimeStore {
     rooms: Arc<Mutex<HashMap<Uuid, HashMap<String, bool>>>>,
+    channels: Arc<Mutex<HashMap<Uuid, broadcast::Sender<ServerRealtimeEvent>>>>,
 }
 
 #[async_trait]
@@ -203,16 +206,55 @@ impl RealtimeStore for FakeRealtimeStore {
             .rooms
             .lock()
             .expect("fake realtime store lock should not be poisoned");
-        if let Some(room) = rooms.get_mut(&room_id) {
-            if let Some(muted) = room.get_mut(user_id) {
-                *muted = false;
-            }
+        if let Some(room) = rooms.get_mut(&room_id)
+            && let Some(muted) = room.get_mut(user_id)
+        {
+            *muted = false;
         }
 
         Ok(())
     }
+
+    async fn publish(&self, room_id: Uuid, event: ServerRealtimeEvent) -> Result<(), AppError> {
+        let sender = self.channel(room_id);
+        let _ = sender.send(event);
+
+        Ok(())
+    }
+
+    async fn subscribe(&self, room_id: Uuid) -> Result<RealtimeEventStream, AppError> {
+        let receiver = self.channel(room_id).subscribe();
+        let stream = stream::unfold(receiver, |mut receiver| async move {
+            match receiver.recv().await {
+                Ok(event) => Some((Ok(event), receiver)),
+                Err(broadcast::error::RecvError::Closed) => None,
+                Err(broadcast::error::RecvError::Lagged(_)) => Some((
+                    Err(AppError::Dependency("realtime event lagged".to_owned())),
+                    receiver,
+                )),
+            }
+        });
+
+        Ok(Box::pin(stream))
+    }
 }
 
+impl FakeRealtimeStore {
+    #[allow(dead_code)]
+    fn channel(&self, room_id: Uuid) -> broadcast::Sender<ServerRealtimeEvent> {
+        let mut channels = self
+            .channels
+            .lock()
+            .expect("fake realtime channel lock should not be poisoned");
+
+        channels
+            .entry(room_id)
+            .or_insert_with(|| broadcast::channel(32).0)
+            .clone()
+    }
+}
+
+#[allow(dead_code)]
 pub async fn spawn_app(app: axum::Router) -> String {
     let listener = TcpListener::bind("127.0.0.1:0")
         .await

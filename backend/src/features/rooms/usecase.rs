@@ -5,6 +5,7 @@ use crate::{
     error::AppError,
     features::{
         auth::context::AuthenticatedUser,
+        realtime::store::RealtimeStore,
         rooms::{
             domain::{Room, RoomDetail, RoomJoin},
             dto::CreateRoomRequest,
@@ -86,20 +87,27 @@ pub async fn join_room<S: RoomLifecycleStore, M: MeetingProvider + ?Sized>(
     })
 }
 
-pub async fn leave_room<S: RoomLifecycleStore, M: MeetingProvider + ?Sized>(
+pub async fn leave_room<
+    S: RoomLifecycleStore,
+    M: MeetingProvider + ?Sized,
+    R: RealtimeStore + ?Sized,
+>(
     store: &S,
     meeting_provider: &M,
+    realtime_store: &R,
     user: &AuthenticatedUser,
     room_id: Uuid,
 ) -> Result<(), AppError> {
     let room = store.get_room(room_id).await?.ok_or(AppError::NotFound)?;
     let active_meeting = store.get_active_meeting(room.id).await?;
     let Some(active_meeting) = active_meeting else {
+        cleanup_realtime_state(realtime_store, room.id, &user.user_id).await;
         info!(room_id = %room.id, user_id = %user.user_id, "leave ignored because no active meeting");
         return Ok(());
     };
 
     let outcome = store.leave_room(room.id, &user.user_id).await?;
+    cleanup_realtime_state(realtime_store, room.id, &user.user_id).await;
     if outcome.ended_meeting_id == Some(active_meeting.id) {
         if let Err(error) = meeting_provider
             .delete_meeting(&active_meeting.chime_meeting_id)
@@ -130,6 +138,30 @@ pub async fn leave_room<S: RoomLifecycleStore, M: MeetingProvider + ?Sized>(
     }
 
     Ok(())
+}
+
+async fn cleanup_realtime_state<R: RealtimeStore + ?Sized>(
+    realtime_store: &R,
+    room_id: Uuid,
+    user_id: &str,
+) {
+    if let Err(error) = realtime_store.remove_presence(room_id, user_id).await {
+        warn!(
+            room_id = %room_id,
+            user_id = %user_id,
+            error = %error,
+            "failed to remove realtime presence on leave"
+        );
+    }
+
+    if let Err(error) = realtime_store.remove_mute(room_id, user_id).await {
+        warn!(
+            room_id = %room_id,
+            user_id = %user_id,
+            error = %error,
+            "failed to remove realtime mute state on leave"
+        );
+    }
 }
 
 async fn resolve_active_meeting<S: RoomLifecycleStore, M: MeetingProvider + ?Sized>(

@@ -8,13 +8,19 @@ use axum::{
 };
 use backend::{
     app::router::create_router,
-    features::rooms::dto::{JoinRoomResponse, RoomDetailResponse, RoomResponse},
+    features::{
+        realtime::store::RealtimeStore,
+        rooms::dto::{JoinRoomResponse, RoomDetailResponse, RoomResponse},
+    },
 };
 use serde_json::json;
 use sqlx::PgPool;
 use tower::util::ServiceExt;
 
-use crate::support::{FakeTokenVerifier, test_state_with_pool};
+use crate::support::{
+    FakeRealtimeStore, FakeTokenVerifier, test_state_with_pool,
+    test_state_with_pool_and_realtime_store,
+};
 
 #[sqlx::test]
 async fn create_room_returns_201_and_uuid(pool: PgPool) -> sqlx::Result<()> {
@@ -238,6 +244,57 @@ async fn concurrent_joins_create_only_one_active_meeting(pool: PgPool) -> sqlx::
     .await?;
 
     assert_eq!(active_meeting_count, 1);
+
+    Ok(())
+}
+
+#[sqlx::test]
+async fn leave_clears_realtime_presence_and_mute_state(pool: PgPool) -> sqlx::Result<()> {
+    let realtime_store = Arc::new(FakeRealtimeStore::default());
+    let app = create_router(test_state_with_pool_and_realtime_store(
+        pool,
+        Arc::new(FakeTokenVerifier::new("user-1")),
+        realtime_store.clone(),
+    ));
+    let room = create_room(&app).await;
+
+    join_room(&app, room.room_id).await;
+    realtime_store
+        .upsert_presence(room.room_id, "user-1")
+        .await
+        .expect("presence should upsert");
+    realtime_store
+        .set_mute(room.room_id, "user-1", true)
+        .await
+        .expect("mute should update");
+
+    let leave_response = app
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri(format!("/v1/rooms/{}/leave", room.room_id))
+                .header("authorization", "Bearer test-token")
+                .body(Body::empty())
+                .expect("request should build"),
+        )
+        .await
+        .expect("router should respond");
+
+    assert_eq!(leave_response.status(), StatusCode::NO_CONTENT);
+
+    realtime_store
+        .upsert_presence(room.room_id, "user-1")
+        .await
+        .expect("presence should upsert after leave");
+
+    let snapshot = realtime_store
+        .snapshot(room.room_id)
+        .await
+        .expect("snapshot should load");
+
+    assert_eq!(snapshot.participants.len(), 1);
+    assert_eq!(snapshot.participants[0].user_id, "user-1");
+    assert!(!snapshot.participants[0].muted);
 
     Ok(())
 }
