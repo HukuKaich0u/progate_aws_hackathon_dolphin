@@ -36,9 +36,10 @@
 
 ### リアルタイム制御
 
-- WebSocket 接続
+- `GET /v1/ws/rooms/:room_id` の WebSocket 接続
+- join 済みユーザーだけを通す admission
 - presence 管理
-- mute / hand raise などの room state 同期
+- self mute の room state 同期
 - `Redis` を使った fan-out
 
 ## 想定コンポーネント
@@ -49,7 +50,7 @@
 
 ### Realtime Gateway
 
-Phase 2 で WebSocket を受け、presence や room state のリアルタイム同期を担当します。
+Phase 2 で WebSocket を受け、presence と self mute のリアルタイム同期を担当します。meeting lifecycle 自体は引き続き HTTP `join/leave` が正本です。
 
 ### Event Collector
 
@@ -72,6 +73,7 @@ Phase 2 で WebSocket を受け、presence や room state のリアルタイム�
 
 - presence
 - WebSocket 配信用の room state
+- self mute state
 - 一時セッション
 
 ### S3

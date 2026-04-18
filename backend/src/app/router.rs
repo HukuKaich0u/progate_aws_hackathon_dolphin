@@ -8,6 +8,7 @@ use crate::{
     features::{
         auth::handler::get_current_user_handler,
         health::handler::{db_health_handler, health_handler},
+        realtime::handler::websocket_room_handler,
         rooms::handler::{
             create_room_handler, get_room_handler, join_room_handler, leave_room_handler,
         },
@@ -24,6 +25,7 @@ pub fn create_router(state: AppState) -> Router {
             .route("/v1/rooms/{room_id}", get(get_room_handler))
             .route("/v1/rooms/{room_id}/join", post(join_room_handler))
             .route("/v1/rooms/{room_id}/leave", post(leave_room_handler))
+            .route("/v1/ws/rooms/{room_id}", get(websocket_room_handler))
             .with_state(state),
     )
 }
@@ -41,7 +43,10 @@ mod tests {
     use crate::{
         app::state::AppState,
         config::AppConfig,
-        infra::{auth::default_token_verifier, chime::default_meeting_provider},
+        infra::{
+            auth::default_token_verifier, chime::default_meeting_provider,
+            realtime::default_realtime_store,
+        },
     };
 
     #[tokio::test]
@@ -70,6 +75,7 @@ mod tests {
             chime_media_region: "ap-northeast-1".to_owned(),
             cognito_user_pool_id: "ap-northeast-1_pool".to_owned(),
             cognito_client_id: "client-id".to_owned(),
+            redis_url: "redis://127.0.0.1:6379".to_owned(),
         };
         let db_pool = PgPoolOptions::new()
             .connect_lazy(&config.database_url)
@@ -80,6 +86,7 @@ mod tests {
             db_pool,
             token_verifier: default_token_verifier(),
             meeting_provider: default_meeting_provider(),
+            realtime_store: default_realtime_store(),
         }
     }
 }

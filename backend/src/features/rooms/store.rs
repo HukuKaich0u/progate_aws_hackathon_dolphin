@@ -65,5 +65,6 @@ pub trait RoomLifecycleStore: Send + Sync {
         &self,
         input: CreateAttendeeRecord,
     ) -> Result<AttendeeRecord, AppError>;
+    async fn has_active_attendee(&self, room_id: Uuid, user_id: &str) -> Result<bool, AppError>;
     async fn leave_room(&self, room_id: Uuid, user_id: &str) -> Result<LeaveOutcome, AppError>;
 }
