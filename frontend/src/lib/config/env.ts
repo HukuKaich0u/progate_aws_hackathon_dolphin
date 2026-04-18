@@ -1,5 +1,6 @@
 export type AppEnv = {
   apiBaseUrl: string
+  awsRegion: string
   cognitoClientId: string
   cognitoDomain: string
   cognitoLogoutRedirectUri: string
@@ -31,6 +32,7 @@ export function getAppEnv(): AppEnv {
 
   return {
     apiBaseUrl: getRequiredEnv('VITE_API_BASE_URL'),
+    awsRegion: getRequiredEnv('VITE_AWS_REGION'),
     cognitoClientId: getRequiredEnv('VITE_COGNITO_CLIENT_ID'),
     cognitoDomain: getRequiredEnv('VITE_COGNITO_DOMAIN'),
     cognitoLogoutRedirectUri:
