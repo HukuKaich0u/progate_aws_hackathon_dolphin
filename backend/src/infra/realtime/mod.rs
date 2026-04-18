@@ -1,6 +1,12 @@
 use std::sync::Arc;
 
-use crate::features::realtime::store::RealtimeStore;
+use async_trait::async_trait;
+use uuid::Uuid;
+
+use crate::{
+    error::AppError,
+    features::realtime::{dto::RoomSnapshot, store::RealtimeStore},
+};
 
 #[derive(Clone)]
 pub struct RedisRealtimeStore {
@@ -17,7 +23,30 @@ impl RedisRealtimeStore {
     }
 }
 
-impl RealtimeStore for RedisRealtimeStore {}
+#[async_trait]
+impl RealtimeStore for RedisRealtimeStore {
+    async fn snapshot(&self, _room_id: Uuid) -> Result<RoomSnapshot, AppError> {
+        Ok(RoomSnapshot {
+            participants: Vec::new(),
+        })
+    }
+
+    async fn upsert_presence(&self, _room_id: Uuid, _user_id: &str) -> Result<(), AppError> {
+        Ok(())
+    }
+
+    async fn remove_presence(&self, _room_id: Uuid, _user_id: &str) -> Result<(), AppError> {
+        Ok(())
+    }
+
+    async fn set_mute(&self, _room_id: Uuid, _user_id: &str, _muted: bool) -> Result<(), AppError> {
+        Ok(())
+    }
+
+    async fn remove_mute(&self, _room_id: Uuid, _user_id: &str) -> Result<(), AppError> {
+        Ok(())
+    }
+}
 
 pub fn redis_realtime_store(client: redis::Client) -> Arc<dyn RealtimeStore> {
     Arc::new(RedisRealtimeStore::new(client))
@@ -26,7 +55,30 @@ pub fn redis_realtime_store(client: redis::Client) -> Arc<dyn RealtimeStore> {
 #[derive(Clone, Default)]
 pub struct NoopRealtimeStore;
 
-impl RealtimeStore for NoopRealtimeStore {}
+#[async_trait]
+impl RealtimeStore for NoopRealtimeStore {
+    async fn snapshot(&self, _room_id: Uuid) -> Result<RoomSnapshot, AppError> {
+        Ok(RoomSnapshot {
+            participants: Vec::new(),
+        })
+    }
+
+    async fn upsert_presence(&self, _room_id: Uuid, _user_id: &str) -> Result<(), AppError> {
+        Ok(())
+    }
+
+    async fn remove_presence(&self, _room_id: Uuid, _user_id: &str) -> Result<(), AppError> {
+        Ok(())
+    }
+
+    async fn set_mute(&self, _room_id: Uuid, _user_id: &str, _muted: bool) -> Result<(), AppError> {
+        Ok(())
+    }
+
+    async fn remove_mute(&self, _room_id: Uuid, _user_id: &str) -> Result<(), AppError> {
+        Ok(())
+    }
+}
 
 pub fn default_realtime_store() -> Arc<dyn RealtimeStore> {
     Arc::new(NoopRealtimeStore)

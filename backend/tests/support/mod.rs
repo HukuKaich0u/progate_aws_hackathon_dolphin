@@ -1,14 +1,24 @@
-use std::sync::Arc;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use async_trait::async_trait;
 use sqlx::postgres::PgPoolOptions;
+use tokio::net::TcpListener;
 use uuid::Uuid;
 
 use backend::{
     app::state::AppState,
     config::AppConfig,
     error::AppError,
-    features::auth::{context::AuthenticatedUser, verifier::TokenVerifier},
+    features::{
+        auth::{context::AuthenticatedUser, verifier::TokenVerifier},
+        realtime::{
+            dto::{ParticipantSnapshot, RoomSnapshot},
+            store::RealtimeStore,
+        },
+    },
     infra::{
         chime::{MeetingProvider, ProvisionedAttendee, ProvisionedMeeting},
         realtime::default_realtime_store,
@@ -92,6 +102,14 @@ pub fn test_state_with_pool(
     pool: sqlx::PgPool,
     token_verifier: Arc<dyn TokenVerifier>,
 ) -> AppState {
+    test_state_with_pool_and_realtime_store(pool, token_verifier, default_realtime_store())
+}
+
+pub fn test_state_with_pool_and_realtime_store(
+    pool: sqlx::PgPool,
+    token_verifier: Arc<dyn TokenVerifier>,
+    realtime_store: Arc<dyn RealtimeStore>,
+) -> AppState {
     let config = AppConfig {
         host: "127.0.0.1".to_owned(),
         port: 3000,
@@ -108,6 +126,106 @@ pub fn test_state_with_pool(
         db_pool: pool,
         token_verifier,
         meeting_provider: Arc::new(FakeMeetingProvider),
-        realtime_store: default_realtime_store(),
+        realtime_store,
     }
+}
+
+#[derive(Clone, Default)]
+pub struct FakeRealtimeStore {
+    rooms: Arc<Mutex<HashMap<Uuid, HashMap<String, bool>>>>,
+}
+
+#[async_trait]
+impl RealtimeStore for FakeRealtimeStore {
+    async fn snapshot(&self, room_id: Uuid) -> Result<RoomSnapshot, AppError> {
+        let rooms = self
+            .rooms
+            .lock()
+            .expect("fake realtime store lock should not be poisoned");
+        let participants = rooms
+            .get(&room_id)
+            .into_iter()
+            .flat_map(|room| room.iter())
+            .map(|(user_id, muted)| ParticipantSnapshot {
+                user_id: user_id.clone(),
+                present: true,
+                muted: *muted,
+            })
+            .collect();
+
+        Ok(RoomSnapshot { participants })
+    }
+
+    async fn upsert_presence(&self, room_id: Uuid, user_id: &str) -> Result<(), AppError> {
+        let mut rooms = self
+            .rooms
+            .lock()
+            .expect("fake realtime store lock should not be poisoned");
+        rooms
+            .entry(room_id)
+            .or_default()
+            .entry(user_id.to_owned())
+            .or_insert(false);
+
+        Ok(())
+    }
+
+    async fn remove_presence(&self, room_id: Uuid, user_id: &str) -> Result<(), AppError> {
+        let mut rooms = self
+            .rooms
+            .lock()
+            .expect("fake realtime store lock should not be poisoned");
+        if let Some(room) = rooms.get_mut(&room_id) {
+            room.remove(user_id);
+            if room.is_empty() {
+                rooms.remove(&room_id);
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn set_mute(&self, room_id: Uuid, user_id: &str, muted: bool) -> Result<(), AppError> {
+        let mut rooms = self
+            .rooms
+            .lock()
+            .expect("fake realtime store lock should not be poisoned");
+        rooms
+            .entry(room_id)
+            .or_default()
+            .insert(user_id.to_owned(), muted);
+
+        Ok(())
+    }
+
+    async fn remove_mute(&self, room_id: Uuid, user_id: &str) -> Result<(), AppError> {
+        let mut rooms = self
+            .rooms
+            .lock()
+            .expect("fake realtime store lock should not be poisoned");
+        if let Some(room) = rooms.get_mut(&room_id) {
+            if let Some(muted) = room.get_mut(user_id) {
+                *muted = false;
+            }
+        }
+
+        Ok(())
+    }
+}
+
+pub async fn spawn_app(app: axum::Router) -> String {
+    let listener = TcpListener::bind("127.0.0.1:0")
+        .await
+        .expect("listener should bind");
+    let address = listener
+        .local_addr()
+        .expect("listener should expose local addr");
+
+    tokio::spawn(async move {
+        axum::serve(listener, app)
+            .await
+            .expect("server should serve test app");
+    });
+
+    format!("http://{address}")
 }
