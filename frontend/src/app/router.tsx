@@ -4,6 +4,7 @@ import { requireAuth } from '../features/auth/require-auth'
 import { RoomRouteComponent } from '../routes/rooms/$roomId'
 import { AuthCallbackRouteComponent } from '../routes/auth/callback'
 import { LoginRouteComponent } from '../routes/login'
+import { SignupRouteComponent } from '../routes/signup'
 import { RootLayout } from '../routes/__root'
 
 const rootRoute = createRootRoute({
@@ -20,6 +21,12 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: LoginRouteComponent,
+})
+
+const signupRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/signup',
+  component: SignupRouteComponent,
 })
 
 const authCallbackRoute = createRoute({
@@ -41,7 +48,7 @@ function RoomRoutePage() {
   return <RoomRouteComponent roomId={roomId} />
 }
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, authCallbackRoute, roomRoute])
+const routeTree = rootRoute.addChildren([indexRoute, loginRoute, signupRoute, authCallbackRoute, roomRoute])
 
 export const appRouter = createRouter({
   routeTree,
