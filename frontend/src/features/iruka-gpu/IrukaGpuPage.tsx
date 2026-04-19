@@ -145,11 +145,16 @@ function DolphinIcon() {
         className="iruka-dolphin-svg__body"
         d="M10 50c8-16 24-27 45-30 14-2 22 0 30 5 6 4 12 9 22 11-8 6-17 8-25 9 3 5 5 10 4 15-5-2-10-7-14-11-9 10-22 17-37 19-10 1-18-1-25-6 5-3 9-7 12-12-5 1-9 2-12 0Z"
       />
+      <g className="iruka-dolphin-svg__fin iruka-dolphin-svg__fin--dorsal">
+        <path d="M52 33c-1-8 2-14 7-18 1 6 3 11 7 16-4-1-9-1-14 2Z" />
+      </g>
+      <g className="iruka-dolphin-svg__fin iruka-dolphin-svg__fin--pectoral">
+        <path d="M56 49c-2 4-7 9-11 11 3-7 7-11 12-14 4-2 8-2 10 0-4 0-7 1-11 3Z" />
+      </g>
       <path
         className="iruka-dolphin-svg__line"
         d="M27 47c14-15 30-21 49-20 12 1 21 5 32 11"
       />
-      <path className="iruka-dolphin-svg__line" d="M52 33c-1-8 2-14 7-18 1 6 3 11 7 16" />
       <path className="iruka-dolphin-svg__line" d="M56 49c-5 8-12 13-21 16" />
       <circle className="iruka-dolphin-svg__eye" cx="84" cy="34" r="2.2" />
     </svg>
