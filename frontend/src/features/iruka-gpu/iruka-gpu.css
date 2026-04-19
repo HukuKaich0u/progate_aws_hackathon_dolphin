@@ -304,6 +304,26 @@
   stroke-linejoin: round;
 }
 
+.iruka-dolphin-svg__fin path {
+  fill: rgba(164, 249, 255, 0.18);
+  stroke: rgba(177, 248, 255, 0.96);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  transform-box: fill-box;
+}
+
+.iruka-dolphin-svg__fin--dorsal path {
+  transform-origin: 50% 88%;
+  animation: iruka-fin-dorsal 1.6s ease-in-out infinite;
+  animation-delay: var(--dolphin-delay, 0s);
+}
+
+.iruka-dolphin-svg__fin--pectoral path {
+  transform-origin: 88% 18%;
+  animation: iruka-fin-pectoral 1.2s ease-in-out infinite;
+  animation-delay: var(--dolphin-delay, 0s);
+}
+
 .iruka-dolphin-svg__line {
   fill: none;
   stroke: rgba(227, 251, 255, 0.84);
@@ -638,6 +658,28 @@
 
   50% {
     margin-top: -6px;
+  }
+}
+
+@keyframes iruka-fin-pectoral {
+  0%,
+  100% {
+    transform: rotate(10deg);
+  }
+
+  50% {
+    transform: rotate(-18deg);
+  }
+}
+
+@keyframes iruka-fin-dorsal {
+  0%,
+  100% {
+    transform: rotate(4deg);
+  }
+
+  50% {
+    transform: rotate(-7deg);
   }
 }
 
