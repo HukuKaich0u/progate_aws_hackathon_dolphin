@@ -88,6 +88,17 @@ resource "aws_security_group_rule" "parent_ssh" {
   description       = "SSH from admin CIDRs"
 }
 
+resource "aws_security_group_rule" "parent_gateway" {
+  count             = length(var.admin_cidrs) > 0 ? 1 : 0
+  type              = "ingress"
+  from_port         = 8000
+  to_port           = 8000
+  protocol          = "tcp"
+  cidr_blocks       = var.admin_cidrs
+  security_group_id = aws_security_group.parent.id
+  description       = "Parent gateway (WebSocket/HTTP) from admin CIDRs"
+}
+
 # Horizontal coupling: worker fleet accepts traffic from the parent SG.
 # Per CLAUDE.md, cross-module SG wiring lives at the environment layer.
 resource "aws_security_group_rule" "worker_ssh_from_parent" {
