@@ -257,17 +257,23 @@ export async function refreshAuthSession() {
     return null
   }
 
-  const response = await fetch(`https://${env.cognitoDomain}/oauth2/token`, {
-    body: new URLSearchParams({
-      client_id: env.cognitoClientId,
-      grant_type: 'refresh_token',
-      refresh_token: currentSession.refreshToken,
-    }),
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    method: 'POST',
-  })
+  let response: Response
+  try {
+    response = await fetch(`https://${env.cognitoDomain}/oauth2/token`, {
+      body: new URLSearchParams({
+        client_id: env.cognitoClientId,
+        grant_type: 'refresh_token',
+        refresh_token: currentSession.refreshToken,
+      }),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      method: 'POST',
+    })
+  } catch {
+    clearAuthSession()
+    return null
+  }
 
   if (!response.ok) {
     clearAuthSession()

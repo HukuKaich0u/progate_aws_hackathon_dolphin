@@ -1,0 +1,15 @@
+############################################
+# Copy this file to terraform.tfvars and fill in as needed.
+# terraform.tfvars is gitignored — never commit secrets.
+############################################
+
+env        = "poc"
+aws_region = "ap-northeast-1"
+
+# 256 × t2.nano uses exactly 256 vCPU (= On-Demand Standard quota).
+fleet_size    = 256
+instance_type = "t2.nano"
+
+# Leave blank to launch without SSH. Set both if you want to SSH into any worker.
+key_name    = ""
+admin_cidrs = []

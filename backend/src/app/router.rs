@@ -1,13 +1,18 @@
 use axum::{
     Router,
+    http::{HeaderValue, Method, header},
     routing::{get, post},
 };
+use tower_http::cors::CorsLayer;
 
 use crate::{
     app::{request_id::apply_request_id, state::AppState},
     features::{
         auth::handler::get_current_user_handler,
         health::handler::{db_health_handler, health_handler},
+        profile::handler::{
+            get_my_profile_handler, list_profiles_handler, upsert_my_profile_handler,
+        },
         realtime::handler::websocket_room_handler,
         rooms::handler::{
             create_room_handler, get_room_handler, join_room_handler, leave_room_handler,
@@ -16,16 +21,30 @@ use crate::{
 };
 
 pub fn create_router(state: AppState) -> Router {
+    let cors = CorsLayer::new()
+        .allow_origin([
+            "http://localhost:5173".parse::<HeaderValue>().unwrap(),
+            "http://localhost:5174".parse::<HeaderValue>().unwrap(),
+        ])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::OPTIONS])
+        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
+
     apply_request_id(
         Router::new()
             .route("/health", get(health_handler))
             .route("/health/db", get(db_health_handler))
             .route("/v1/auth/me", get(get_current_user_handler))
+            .route("/v1/profiles", get(list_profiles_handler))
+            .route(
+                "/v1/me/profile",
+                get(get_my_profile_handler).put(upsert_my_profile_handler),
+            )
             .route("/v1/rooms", post(create_room_handler))
             .route("/v1/rooms/{room_id}", get(get_room_handler))
             .route("/v1/rooms/{room_id}/join", post(join_room_handler))
             .route("/v1/rooms/{room_id}/leave", post(leave_room_handler))
             .route("/v1/ws/rooms/{room_id}", get(websocket_room_handler))
+            .layer(cors)
             .with_state(state),
     )
 }

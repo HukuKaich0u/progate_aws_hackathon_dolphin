@@ -27,11 +27,18 @@ function getOptionalEnv(name: keyof ImportMetaEnv) {
   return value
 }
 
+function resolveApiBaseUrl(): string {
+  const configured = getOptionalEnv('VITE_API_BASE_URL')
+  if (configured) return configured
+  if (typeof window !== 'undefined') return window.location.origin
+  throw new Error('Missing required env var: VITE_API_BASE_URL')
+}
+
 export function getAppEnv(): AppEnv {
   const cognitoRedirectUri = getRequiredEnv('VITE_COGNITO_REDIRECT_URI')
 
   return {
-    apiBaseUrl: getRequiredEnv('VITE_API_BASE_URL'),
+    apiBaseUrl: resolveApiBaseUrl(),
     awsRegion: getRequiredEnv('VITE_AWS_REGION'),
     cognitoClientId: getRequiredEnv('VITE_COGNITO_CLIENT_ID'),
     cognitoDomain: getRequiredEnv('VITE_COGNITO_DOMAIN'),

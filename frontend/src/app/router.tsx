@@ -4,7 +4,12 @@ import { requireAuth } from '../features/auth/require-auth'
 import { RoomRouteComponent } from '../routes/rooms/$roomId'
 import { AuthCallbackRouteComponent } from '../routes/auth/callback'
 import { LoginRouteComponent } from '../routes/login'
+import { ProfileRouteComponent } from '../routes/profile'
+import { ReceiveRouteComponent } from '../routes/receive'
+import { SendRouteComponent } from '../routes/send'
 import { SignupRouteComponent } from '../routes/signup'
+import { SonicRouteComponent } from '../routes/sonic'
+import { IrukaGpuRouteComponent } from '../routes/iruka-gpu'
 import { RootLayout } from '../routes/__root'
 
 const rootRoute = createRootRoute({
@@ -29,6 +34,37 @@ const signupRoute = createRoute({
   component: SignupRouteComponent,
 })
 
+const sonicRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sonic',
+  component: SonicRouteComponent,
+})
+
+const irukaGpuRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/iruka-gpu',
+  component: IrukaGpuRouteComponent,
+})
+
+const profileRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/profile',
+  component: ProfileRouteComponent,
+})
+
+const sendRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/send',
+  beforeLoad: ({ location }) => requireAuth(location.href),
+  component: SendRouteComponent,
+})
+
+const receiveRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/receive',
+  component: ReceiveRouteComponent,
+})
+
 const authCallbackRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/auth/callback',
@@ -48,7 +84,7 @@ function RoomRoutePage() {
   return <RoomRouteComponent roomId={roomId} />
 }
 
-const routeTree = rootRoute.addChildren([indexRoute, loginRoute, signupRoute, authCallbackRoute, roomRoute])
+const routeTree = rootRoute.addChildren([indexRoute, loginRoute, signupRoute, sonicRoute, irukaGpuRoute, profileRoute, sendRoute, receiveRoute, authCallbackRoute, roomRoute])
 
 export const appRouter = createRouter({
   routeTree,

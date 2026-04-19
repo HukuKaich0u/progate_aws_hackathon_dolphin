@@ -12,6 +12,7 @@
   "dependencies": {
     "@tanstack/react-query": "latest",
     "@tanstack/react-router": "latest",
+    "pixi.js": "^8.5.0",
     "react": "latest",
     "react-dom": "latest",
     "zustand": "^5.0.12"
