@@ -34,6 +34,10 @@ function resolveApiBaseUrl(): string {
   throw new Error('Missing required env var: VITE_API_BASE_URL')
 }
 
+export function getApiBaseUrl(): string {
+  return resolveApiBaseUrl()
+}
+
 export function getAppEnv(): AppEnv {
   const cognitoRedirectUri = getRequiredEnv('VITE_COGNITO_REDIRECT_URI')
 

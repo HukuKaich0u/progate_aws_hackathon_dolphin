@@ -1,4 +1,4 @@
-import { getAppEnv } from '../config/env'
+import { getApiBaseUrl } from '../config/env'
 import { clearAuthSession, getAuthSession, isSessionExpired, type AuthSession } from '../../features/auth/auth-session'
 import { refreshAuthSession } from '../../features/auth/cognito'
 
@@ -17,9 +17,7 @@ function buildHeaders(init: RequestInit, session: AuthSession | null) {
 }
 
 async function sendRequest(path: string, init: RequestInit, session: AuthSession | null) {
-  const env = getAppEnv()
-
-  return fetch(new URL(path, env.apiBaseUrl), {
+  return fetch(new URL(path, getApiBaseUrl()), {
     ...init,
     headers: buildHeaders(init, session),
   })
