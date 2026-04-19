@@ -31,13 +31,15 @@
   place-items: center;
   width: 100%;
   height: 100%;
-  padding: clamp(18px, 3vw, 36px);
+  padding: 4px 0;
 }
 
 .iruka-monitor {
   position: relative;
-  width: min(1028px, calc(100vw - 24px));
-  aspect-ratio: 1028 / 603;
+  width: 100vw;
+  height: calc(100vh - 8px);
+  max-width: 100vw;
+  max-height: 100%;
 }
 
 .iruka-monitor__frame {
@@ -615,8 +617,13 @@
 }
 
 @media (max-width: 920px) {
+  .iruka-monitor-stage {
+    padding: 4px 0;
+  }
+
   .iruka-monitor {
-    width: min(1028px, calc(100vw - 10px));
+    width: 100vw;
+    height: calc(100vh - 8px);
   }
 
   .iruka-monitor__frame {
@@ -668,9 +675,13 @@
 }
 
 @media (max-width: 680px) {
+  .iruka-monitor-stage {
+    padding: 2px 0;
+  }
+
   .iruka-monitor {
-    aspect-ratio: 9 / 11;
-    width: min(540px, calc(100vw - 8px));
+    width: 100vw;
+    height: calc(100vh - 4px);
   }
 
   .iruka-monitor__frame {
