@@ -1,6 +1,12 @@
 import type { CSSProperties } from 'react'
 import './iruka-gpu.css'
 
+type MetricSpec = {
+  detail: string
+  label: string
+  value: string
+}
+
 type BubbleSpec = {
   left: string
   size: number
@@ -53,6 +59,57 @@ const DOLPHINS: readonly DolphinSpec[] = [
 ]
 
 const GAUGE_TICKS = Array.from({ length: 15 }, (_, index) => index)
+
+const SIDE_PANEL_METRICS: readonly (readonly MetricSpec[])[] = [
+  [
+    {
+      label: 'Active Nodes',
+      value: '126',
+      detail: '126 / 126 online',
+    },
+    {
+      label: 'Node Health',
+      value: '99.2%',
+      detail: '124 healthy, 2 warning',
+    },
+  ],
+  [
+    {
+      label: 'Inference Throughput',
+      value: '4,820 req/s',
+      detail: 'Current swarm throughput',
+    },
+    {
+      label: 'Latency',
+      value: '42 / 88 ms',
+      detail: 'p50 / p95',
+    },
+  ],
+  [
+    {
+      label: 'Queue Depth',
+      value: '18',
+      detail: '3 high-priority waiting',
+    },
+    {
+      label: 'Power / Thermal',
+      value: '71 kW / 64C',
+      detail: 'Cluster draw / avg temp',
+    },
+  ],
+  [
+    {
+      label: 'Network Sync',
+      value: '3.8 ms',
+      detail: 'Inter-node sync delay',
+    },
+    {
+      label: 'Failures / Retries',
+      value: '2 / 11',
+      detail: 'Errors / retried jobs',
+    },
+  ],
+]
 
 function BubbleCluster({
   bubbles,
@@ -151,6 +208,20 @@ function MonitorGauge() {
   )
 }
 
+function MetricStack({ items }: { items: readonly MetricSpec[] }) {
+  return (
+    <div className="iruka-metric-stack">
+      {items.map((item) => (
+        <article className="iruka-metric-card" key={item.label}>
+          <span className="iruka-metric-card__label">{item.label}</span>
+          <strong className="iruka-metric-card__value">{item.value}</strong>
+          <span className="iruka-metric-card__detail">{item.detail}</span>
+        </article>
+      ))}
+    </div>
+  )
+}
+
 export function IrukaGpuPage() {
   return (
     <main className="iruka-gpu-page">
@@ -163,18 +234,12 @@ export function IrukaGpuPage() {
 
             <div className="iruka-side iruka-side--left">
               <section className="iruka-panel iruka-panel--stats">
-                <div className="iruka-stat-row">
-                  <span className="iruka-stat-row__label">Nodes Active:</span>
-                  <span className="iruka-stat-row__value">1,450,422</span>
-                </div>
-                <div className="iruka-stat-row">
-                  <span className="iruka-stat-row__label">Efficiency:</span>
-                  <span className="iruka-stat-row__value">96.8%</span>
-                </div>
+                <MetricStack items={SIDE_PANEL_METRICS[0]} />
                 <div className="iruka-panel__glow" aria-hidden="true" />
               </section>
 
               <section className="iruka-panel iruka-panel--large">
+                <MetricStack items={SIDE_PANEL_METRICS[1]} />
                 <BubbleCluster
                   bubbles={[
                     { left: '22%', top: '64%', size: 9 },
@@ -208,6 +273,7 @@ export function IrukaGpuPage() {
 
             <div className="iruka-side iruka-side--right">
               <section className="iruka-panel">
+                <MetricStack items={SIDE_PANEL_METRICS[2]} />
                 <BubbleCluster
                   bubbles={[
                     { left: '76%', top: '8%', size: 8 },
@@ -222,6 +288,7 @@ export function IrukaGpuPage() {
               </section>
 
               <section className="iruka-panel iruka-panel--large">
+                <MetricStack items={SIDE_PANEL_METRICS[3]} />
                 <BubbleCluster
                   bubbles={[
                     { left: '64%', top: '38%', size: 10 },
