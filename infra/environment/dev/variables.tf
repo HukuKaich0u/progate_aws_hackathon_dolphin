@@ -109,3 +109,24 @@ variable "ml_s3_bucket_arns" {
   type        = list(string)
   default     = []
 }
+
+variable "frontend_branch_name" {
+  description = "Amplify branch name for the frontend."
+  type        = string
+  default     = "feat-amplify"
+}
+
+variable "frontend_base_url" {
+  description = "Public base URL for the frontend, used in Cognito callback/logout settings and frontend env."
+  type        = string
+}
+
+variable "frontend_api_base_url" {
+  description = "HTTPS API base URL used by the frontend."
+  type        = string
+}
+
+variable "frontend_cognito_domain_prefix" {
+  description = "Unique Cognito Hosted UI domain prefix for the frontend."
+  type        = string
+}

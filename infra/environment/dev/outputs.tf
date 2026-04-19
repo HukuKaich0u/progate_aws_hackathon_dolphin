@@ -18,6 +18,16 @@ output "cognito_client_id" {
   value       = module.cognito.client_id
 }
 
+output "cognito_frontend_client_id" {
+  description = "Frontend Cognito app client id."
+  value       = module.cognito.frontend_client_id
+}
+
+output "cognito_frontend_domain" {
+  description = "Frontend Cognito hosted UI domain."
+  value       = module.cognito.frontend_domain
+}
+
 output "backend_ecr_repository_url" {
   description = "Push backend images here."
   value       = module.ecr_backend.repository_url
@@ -57,4 +67,24 @@ output "ml_instance_public_ip" {
 output "ml_ssh_hint" {
   description = "Example SSH command for the ML host."
   value       = module.ml.ssh_hint
+}
+
+output "frontend_amplify_app_id" {
+  description = "Amplify app id for the frontend."
+  value       = module.amplify_frontend.app_id
+}
+
+output "frontend_amplify_default_domain" {
+  description = "Amplify default domain for the frontend app."
+  value       = module.amplify_frontend.default_domain
+}
+
+output "frontend_amplify_branch_name" {
+  description = "Amplify branch managed by Terraform."
+  value       = module.amplify_frontend.branch_name
+}
+
+output "frontend_amplify_branch_url" {
+  description = "Amplify branch URL."
+  value       = module.amplify_frontend.branch_url
 }

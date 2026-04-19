@@ -28,6 +28,24 @@ variable "test_user_temporary_password" {
   sensitive   = true
 }
 
+variable "frontend_callback_urls" {
+  description = "Allowed callback URLs for the frontend Cognito app client."
+  type        = list(string)
+  default     = []
+}
+
+variable "frontend_logout_urls" {
+  description = "Allowed logout URLs for the frontend Cognito app client."
+  type        = list(string)
+  default     = []
+}
+
+variable "frontend_domain_prefix" {
+  description = "Hosted UI domain prefix for Cognito."
+  type        = string
+  default     = ""
+}
+
 variable "tags" {
   description = "Extra tags."
   type        = map(string)

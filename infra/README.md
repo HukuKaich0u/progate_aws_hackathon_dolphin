@@ -11,10 +11,12 @@ Terraform で AWS リソースを管理します。設計方針は [CLAUDE.md](.
 
 - VPC (2AZ, public + private subnets, NAT Gateway)
 - Cognito User Pool + backend 用 App Client
+- Cognito frontend App Client + Hosted UI domain
 - RDS PostgreSQL (private subnet)
 - backend 用 ECR repo
 - Fargate cluster + ALB + task role (Chime 権限付き)
 - ML チーム向け GPU EC2 (既定 `g5.2xlarge`)
+- Amplify Hosting app + `feat-amplify` branch
 
 ## 使い方 (dev)
 
@@ -34,6 +36,20 @@ terraform plan -out tf.plan
 # 4. apply
 terraform apply tf.plan
 ```
+
+### frontend / Amplify の前提
+
+`terraform.tfvars` に以下を設定します。
+
+- `frontend_branch_name` — Amplify で作る branch 名
+- `frontend_base_url` — frontend の公開 URL
+- `frontend_api_base_url` — frontend から叩く HTTPS の API URL
+- `frontend_cognito_domain_prefix` — Cognito Hosted UI 用の一意な domain prefix
+
+`frontend_base_url` を Amplify の default domain にしたい場合、初回 apply 前には app id が未確定です。
+その場合は一旦仮の URL で apply し、出力された `frontend_amplify_branch_url` を `frontend_base_url` に反映してもう一度 `terraform apply` してください。Cognito callback/logout URL と frontend build env が揃います。
+
+Amplify は HTTPS 配信です。`frontend_api_base_url` に HTTP endpoint を渡すと browser の mixed content で API 呼び出しが失敗します。backend をそのまま使うなら HTTPS endpoint を別途用意してください。
 
 ### 初回 apply のコツ
 
@@ -66,7 +82,22 @@ terraform output cognito_client_id
 terraform output backend_alb_dns_name
 terraform output backend_task_role_arn
 terraform output -raw database_url      # 秘匿: 個別に渡す
+terraform output cognito_frontend_client_id
+terraform output cognito_frontend_domain
+terraform output frontend_amplify_app_id
+terraform output frontend_amplify_branch_url
 ```
+
+### Amplify app をコンソールで接続
+
+`terraform apply` 後、Amplify Console で作成済み app を開いて repo 接続を行います。
+
+1. Amplify app を開く
+2. Git provider を接続する
+3. `feat-amplify` branch を選ぶ
+4. build 設定は Terraform 側の build spec を使う
+
+接続後のビルドでは `frontend/` の Vite app が `npm ci && npm run build` で公開されます。
 
 ## tfstate
 

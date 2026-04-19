@@ -7,6 +7,15 @@ env                = "dev"
 aws_region         = "ap-northeast-1"
 chime_media_region = "ap-northeast-1"
 
+# Frontend / Amplify.
+# frontend_base_url should be the public URL users will open.
+# If you start with the Amplify default domain, you can set a temporary placeholder,
+# apply once, inspect frontend_amplify_branch_url, then update this value and apply again.
+frontend_branch_name           = "feat-amplify"
+frontend_base_url              = "https://feat-amplify.example.com"
+frontend_api_base_url          = "https://api.example.com"
+frontend_cognito_domain_prefix = "dolphin-dev-frontend-auth"
+
 # RDS master password. Must be 8+ chars.
 rds_master_password = "CHANGE_ME_STRONG_PASSWORD"
 

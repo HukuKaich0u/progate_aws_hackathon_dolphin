@@ -1,0 +1,161 @@
+<mxfile host="app.diagrams.net" agent="Codex" version="29.2.4">
+  <diagram id="dolphin-poc-aws-icons" name="Page-1">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="dolphin-poc EC2 fleet architecture (AWS official icon asset redraw, 2026-04-19)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="20" y="20" width="980" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="clients-a" value="Developer Mac&#xa;61.21.199.15/32" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D9E7F7;strokeColor=#7EA6E0;fontColor=#232F3E;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="30" y="70" width="160" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="clients-b" value="ML Engineer Mac&#xa;126.12.69.85/32" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D9E7F7;strokeColor=#7EA6E0;fontColor=#232F3E;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="205" y="70" width="160" height="64" as="geometry"/>
+        </mxCell>
+        <mxCell id="internet" value="Internet" style="ellipse;whiteSpace=wrap;html=1;fillColor=#F8D6D3;strokeColor=#D98880;fontColor=#232F3E;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="110" y="160" width="150" height="52" as="geometry"/>
+        </mxCell>
+        <mxCell id="vpc" value="VPC&#xa;reference redraw of attached legacy EC2 fleet PoC&#xa;CIDR 172.31.0.0/16  region ap-northeast-1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FBFF;strokeColor=#5B9BD5;strokeWidth=2;fontColor=#232F3E;fontSize=15;align=left;spacingLeft=14;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="20" y="220" width="1580" height="760" as="geometry"/>
+        </mxCell>
+        <mxCell id="vpc-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Architecture-Group-Icons_01302026/Virtual-private-cloud-VPC_32.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1490" y="232" width="32" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="igw-label" value="Internet Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8D6D3;strokeColor=#D98880;fontColor=#232F3E;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="500" y="235" width="140" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="igw-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Networking-Content-Delivery/Res_Amazon-VPC_Internet-Gateway_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="548" y="282" width="56" height="56" as="geometry"/>
+        </mxCell>
+        <mxCell id="subnet-a" value="AZ ap-northeast-1a&#xa;public subnet 172.31.0.0/20" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DDECD2;strokeColor=#9BBB59;fontColor=#232F3E;fontSize=13;align=left;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="420" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="subnet-a-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Architecture-Group-Icons_01302026/Public-subnet_32.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="308" width="32" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="subnet-c" value="AZ ap-northeast-1c&#xa;public subnet 172.31.16.0/20" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DDECD2;strokeColor=#9BBB59;fontColor=#232F3E;fontSize=13;align=left;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="500" y="300" width="420" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="subnet-c-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Architecture-Group-Icons_01302026/Public-subnet_32.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="308" width="32" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="subnet-d" value="AZ ap-northeast-1d&#xa;public subnet 172.31.32.0/20" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#DDECD2;strokeColor=#9BBB59;fontColor=#232F3E;fontSize=13;align=left;spacingLeft=10;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="940" y="300" width="420" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="subnet-d-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Architecture-Group-Icons_01302026/Public-subnet_32.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="308" width="32" height="32" as="geometry"/>
+        </mxCell>
+        <mxCell id="parent-box" value="Parent (dispatcher)&#xa;&#xa;t3.medium&#xa;2 vCPU / 4 GiB / EBS 8 GiB&#xa;&#xa;instance i-057a0991b24ddf67c&#xa;public 54.249.218.72&#xa;private 172.31.6.145&#xa;&#xa;SG dolphin-poc-parent-sg&#xa;AMI / EC2 RO / SSM / ECR PowerUser" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FBE5C6;strokeColor=#E3A857;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=12;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="350" width="300" height="230" as="geometry"/>
+        </mxCell>
+        <mxCell id="parent-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Compute/Res_Amazon-EC2_Instance_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="318" y="364" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker-a-box" value="Worker fleet x42&#xa;&#xa;t3.small&#xa;2 vCPU / 2 GiB / EBS 8 GiB&#xa;&#xa;Docker + FastAPI :8080&#xa;container: python:3.12-slim + uvicorn&#xa;&#xa;SG dolphin-poc-fleet-sg&#xa;IAM dolphin-poc-worker-role&#xa;(ECR RO / SSM)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=12;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="610" width="300" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker-a-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Compute/Res_Amazon-EC2_Instances_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="315" y="626" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker-c-box" value="Worker fleet x42&#xa;&#xa;t3.small&#xa;2 vCPU / 2 GiB / EBS 8 GiB&#xa;&#xa;Docker + FastAPI :8080&#xa;container: python:3.12-slim + uvicorn&#xa;&#xa;SG dolphin-poc-fleet-sg&#xa;IAM dolphin-poc-worker-role&#xa;(ECR RO / SSM)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=12;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="520" y="500" width="300" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker-c-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Compute/Res_Amazon-EC2_Instances_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="755" y="516" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker-d-box" value="Worker fleet x42&#xa;&#xa;t3.small&#xa;2 vCPU / 2 GiB / EBS 8 GiB&#xa;&#xa;Docker + FastAPI :8080&#xa;container: python:3.12-slim + uvicorn&#xa;&#xa;SG dolphin-poc-fleet-sg&#xa;IAM dolphin-poc-worker-role&#xa;(ECR RO / SSM)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=12;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="960" y="500" width="300" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="worker-d-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Compute/Res_Amazon-EC2_Instances_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1195" y="516" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="aws-sidebar" value="AWS managed services" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CFCFCF;fontColor=#232F3E;fontSize=15;fontStyle=1;align=left;spacingLeft=12;spacingTop=10;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="220" width="330" height="640" as="geometry"/>
+        </mxCell>
+        <mxCell id="ecr-box" value="ECR&#xa;dolphin-poc-hello&#xa;245381852209.dkr.ecr.ap-northeast-1.amazonaws.com/dolphin-poc-hello:latest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EADFF7;strokeColor=#9673A6;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=74;spacingTop=14;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="260" width="270" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="ecr-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Containers/Res_Amazon-Elastic-Container-Registry_Registry_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1476" y="280" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="asg-box" value="Auto Scaling Group&#xa;dolphin-poc-fleet-asg&#xa;&#xa;desired = 126&#xa;spread across 3 AZ (42 / 42 / 42)&#xa;instance refresh: Rolling" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EADFF7;strokeColor=#9673A6;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=74;spacingTop=14;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="372" width="270" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="asg-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Compute/Res_Amazon-EC2_Auto-Scaling_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1476" y="404" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="lt-box" value="Launch Template&#xa;lt-0eae57e1b9d0472 (version 2)&#xa;&#xa;image: Amazon Linux 2023&#xa;AMI + docker install + ECR login + run -p 8080:8080" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EADFF7;strokeColor=#9673A6;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=74;spacingTop=16;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="512" width="270" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="lt-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Resource-Icons_01302026/Res_Compute/Res_Amazon-EC2_AMI_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1476" y="542" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="ssm-box" value="AWS Systems Manager&#xa;Session Manager / Run Command&#xa;instance bootstrap + remote ops" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EADFF7;strokeColor=#9673A6;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=74;spacingTop=16;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="638" width="270" height="92" as="geometry"/>
+        </mxCell>
+        <mxCell id="ssm-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Architecture-Service-Icons_01302026/Arch_Management-Tools/48/Arch_AWS-Systems-Manager_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1476" y="660" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="iam-parent-box" value="IAM role dolphin-poc-parent-role&#xa;AmazonEC2ContainerRegistryPowerUser&#xa;AmazonEC2ReadOnlyAccess&#xa;AmazonSSMManagedInstanceCore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EADFF7;strokeColor=#9673A6;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=74;spacingTop=14;" vertex="1" parent="1">
+          <mxGeometry x="1460" y="744" width="270" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="iam-parent-icon" value="" style="shape=image;image=.assets/aws-architecture-icons-2026-01/Architecture-Service-Icons_01302026/Arch_Security-Identity/48/Arch_AWS-Identity-and-Access-Management_48.svg;imageAspect=0;aspect=fixed;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1476" y="760" width="48" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="flow-notes" value="Flows&#xa;Mac -SSH 22-&gt; IGW -&gt; Parent&#xa;Parent -SSH 22 / HTTP 8080-&gt; Worker fleet (private IPs inside VPC)&#xa;Workers -docker pull (on boot via user_data)-&gt; ECR (auth via IAM)&#xa;ASG manages desired=126 -&gt; Worker fleet&#xa;&#xa;Capacity&#xa;parent 2 vCPU + workers 252 vCPU = 254 / 256 (On-Demand Standard quota)&#xa;total RAM 4 GiB + 252 GiB = 256 GiB&#xa;&#xa;Deliberate absences&#xa;no NAT gateway (workers are in public subnets with IGW egress)&#xa;no ALB / NLB (parent fan-out with asyncio)&#xa;no RDS / ElastiCache / S3 mount (stateless hello world)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF2CC;strokeColor=#D6B656;fontColor=#232F3E;fontSize=12;align=left;spacingLeft=12;spacingTop=12;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1000" width="1740" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-a" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#5B9BD5;strokeWidth=2;" edge="1" parent="1" source="clients-a" target="internet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-b" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#5B9BD5;strokeWidth=2;" edge="1" parent="1" source="clients-b" target="internet">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-c" value="SSH 22" style="endArrow=classic;html=1;rounded=0;strokeColor=#5B9BD5;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="internet" target="igw-label">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="260" y="186"/>
+              <mxPoint x="500" y="186"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-d" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#5B9BD5;strokeWidth=2;" edge="1" parent="1" source="igw-label" target="parent-box">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edge-e" value="22 / 8080 (private)" style="endArrow=classic;html=1;rounded=0;strokeColor=#C69214;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="parent-box" target="worker-c-box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="465"/>
+              <mxPoint x="660" y="465"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-f" value="22 / 8080 (private)" style="endArrow=classic;html=1;rounded=0;strokeColor=#C69214;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="parent-box" target="worker-d-box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="465"/>
+              <mxPoint x="1100" y="465"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-g" value="docker pull (user_data)" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="worker-d-box" target="ecr-box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1260" y="610"/>
+              <mxPoint x="1410" y="610"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-h" value="manages" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673A6;strokeWidth=2;fontSize=11;" edge="1" parent="1" source="asg-box" target="worker-c-box">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1410" y="432"/>
+              <mxPoint x="860" y="432"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
