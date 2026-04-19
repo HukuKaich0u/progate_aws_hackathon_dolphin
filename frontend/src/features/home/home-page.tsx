@@ -16,6 +16,12 @@ export function HomePage() {
           <a href="/rooms/demo-room">
             <Button type="button">Open demo room</Button>
           </a>
+          <a href="/sonic">
+            <Button type="button">Sonic PoC</Button>
+          </a>
+          <a href="/receive">
+            <Button type="button">Receive</Button>
+          </a>
         </div>
       </section>
     </main>

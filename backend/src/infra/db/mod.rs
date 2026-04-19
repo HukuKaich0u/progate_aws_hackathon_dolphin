@@ -2,6 +2,7 @@ use sqlx::{PgPool, postgres::PgPoolOptions};
 
 use crate::error::AppError;
 
+pub mod profiles_store;
 pub mod rooms_store;
 
 pub async fn create_pool(database_url: &str) -> Result<PgPool, AppError> {
