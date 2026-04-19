@@ -4,3 +4,7 @@ frontend/dist/
 
 .env
 !.env.example
+
+# Local env files (committed accidentally on feat-enhance-frontend, excluded here)
+.env.local
+.env.*.local
